@@ -1,0 +1,40 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "bsv",
+      "camelcase": "BSV",
+      "title": "Bluespec System Verilog",
+      "scope": "source.bsv",
+      "file-types": [
+        "bsv"
+      ],
+      "injection-regex": "^bsv$",
+      "class-name": "TreeSitterBsv"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "MIT",
+    "description": "A tree-sitter grammar for Bluespec System Verilog (BSV)",
+    "authors": [
+      {
+        "name": "Robert Szafarczyk",
+        "email": "robertszafa@gmail.com",
+        "url": "https://robertszafa.github.io/"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/robertszafa/tree-sitter-bsv"
+    }
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}
