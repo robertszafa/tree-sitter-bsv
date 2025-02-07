@@ -7,10 +7,6 @@
 /// This grammar implements the BSV language as described in:
 /// - Bluespec System Verilog language Reference Guide: 
 ///     https://github.com/B-Lang-org/bsc/releases/latest/download/BSV_lang_ref_guide.pdf
-/// - Simpliefied BSV grammar collected in single txt file by Rishiyur S. Nikhil:
-///     https://github.com/rsnikhil/goParseBSV/blob/master/grammar.txt
-///
-/// Any mistakes are my own.
 
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
@@ -363,13 +359,34 @@ module.exports = grammar({
       prec.left(seq(
         optional($.attributeInstances), 
         $.functionProto,
-          repeat($.Stmt), 
+          repeat($.functionBody), 
         'endfunction', optional(seq(':', $.identifier))
       )),
       prec.left(seq(
         $.functionProto, '=', $.expression, ';')
       )
     ),
+
+    functionBody: $ => choice(
+      $.actionBlock,
+      $.actionValueBlock,
+      prec.left(repeat1($.functionBodyStmt)),
+    ),
+
+    functionBodyStmt: $ => choice(
+      $.returnStmt, 
+      $.varDecl, 
+      $.varAssign, 
+      $.functionDef,
+      $.moduleDef, 
+      $.beginEndBlock, 
+      $.If, 
+      $.Case, 
+      $.For, 
+      $.While
+    ),
+
+    returnStmt: $ => seq('return', $.expression, ';'),
 
     functionProto : $ => prec.left(seq(
       'function', $.type, $.identifier,
@@ -496,7 +513,6 @@ module.exports = grammar({
       '?',
       seq('valueOf', '(', $.type, ')'),
       seq('valueof', '(', $.type, ')'),
-      seq('return', $.expression, ';'),
       $.bitConcat,
       $.bitSelect,
       $.functionCall,
@@ -513,9 +529,9 @@ module.exports = grammar({
       $.parFsmStmt,
     ),
 
-    bitConcat : $ => prec.left(seq(
+    bitConcat : $ => seq(
       '{', $.expression, repeat(seq(',', $.expression)), '}'
-    )),
+    ),
     bitSelect : $ => prec.left(seq(
       $.exprPrimary, '[', $.expression, optional(seq(':', $.expression)), ']'
     )),
@@ -617,6 +633,8 @@ module.exports = grammar({
       $.For, 
       $.While
     ),
+
+    
 
     // ----------------
     // Conditionals
@@ -732,11 +750,6 @@ module.exports = grammar({
       $.attrName, optional(seq('=', $.expression))
     )),
     attrName : $ => choice($.identifier, $.Identifier),
-
-    identifier : $ => /[a-zA-Z_][a-zA-Z0-9_$]*/, // Identifier starting with any case.
-    Identifier : $ => /[A-Z_][a-zA-Z0-9_$]*/, // Identifier starting with upper case.
-
-    comment : $ => token(seq('//', /.*/)),
 
     // ================================================================
     // Provisos
@@ -859,10 +872,16 @@ module.exports = grammar({
                         '$time', '$stime', '$realtobits', '$bitstoreal',
                         '$test$plusargs'),
 
+    identifier : $ => token(/[a-zA-Z_][a-zA-Z0-9_]*/), // Identifier starting with any case.
+    Identifier : $ => token(/[A-Z_][a-zA-Z0-9_]*/), // Identifier starting with upper case.
+
+    comment : $ => token(seq('//', /.*/)),
+
   },
 
   extras : $ => [/\s/, $.comment],
 
+  // tree-sitter has automatic keyword extraction
   word: $ => $.identifier,
 
   conflicts: $ => [
@@ -878,6 +897,7 @@ module.exports = grammar({
     [$.moduleApp, $.exprPrimary],
     [$.condExpr, $.exprOrCondPattern],
     [$.expression, $.exprPrimary, $.methodCall],
+    [$.expression, $.functionCall],
     [$.CasePatItem, $.exprOrCondPattern],
     [$.typeIde, $.exprPrimary],
     [$.typeIde, $.exprPrimary, $.moduleApp],
