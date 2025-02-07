@@ -11,463 +11,616 @@
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
 
+// Some useful functions
+
+function repeatseq(...rules) {
+  return repeat(prec.left(seq(...rules)));
+}
+
+function optseq(...rules) {
+  return optional(prec.left(seq(...rules)));
+}
+
+// Functions producing contextualized rules.
+
+function ctxtBeginEndStmt($, ctxtStmt) {
+  return field('beginEndStmt', prec.left(seq(
+    'begin', optseq(':', $.identifier),
+    repeat(ctxtStmt), 
+    'end', optseq(':', $.identifier)
+  )));
+}
+
+function ctxtIf($, ctxtStmt) {
+  return field('ifStmt', prec.left(seq(
+    'if', '(', $.condPredicate, ')', ctxtStmt,
+    optional(seq('else', ctxtStmt))
+  )));
+}
+
+function ctxtCase($, ctxtStmt) {
+  let CaseItem = () => prec.left(seq(
+      $.expression, repeat(seq(',', $.expression)), ':', ctxtStmt
+  ));
+  let CasePatItem = () => prec.left(seq(
+      $.pattern, repeat(seq('&&&', $.expression)), ':', ctxtStmt
+  ));
+  let DefaultItem = () => prec.left(seq(
+    'default', optional(':'), ctxtStmt
+  ));
+
+  return choice(
+    prec.left(seq(
+      'case', '(', $.expression, ')',
+        repeat(CaseItem()),
+        optional(DefaultItem()),
+      'endcase',
+    )),
+    prec.left(seq(
+      'case', '(', $.expression, ')', 'matches',
+        repeat(CasePatItem()), 
+        optional(DefaultItem()),
+      'endcase'
+    ))
+  );
+}
+
+    // ----------------
+    // Static loops
+function ctxtFor($, ctxtStmt) {
+    let simpleVarAssign = () => prec.left(seq($.identifier, '=', $.expression));
+    let simpleVarDeclAssign = () => prec.left(seq(
+      optional($.type), $.identifier, '=', $.expression),
+    );
+
+    let forOldInit = () => prec.left(seq(
+      simpleVarAssign(), repeat(seq(',', simpleVarAssign()))
+    ));
+    let forNewInit = () => prec.left(seq(
+      $.type, $.identifier, '=', $.expression,
+      repeat(seq(',', simpleVarDeclAssign()))
+    ));
+    let forInit = () => choice(forOldInit(), forNewInit());
+
+    let varIncr = () => prec.left(seq(
+      $.identifier, '=', $.expression
+    ));
+    let forTest = () => $.expression;
+    let forIncr = () => prec.left(seq(
+      varIncr(), repeat(seq(',', varIncr()))
+    ));
+
+  return prec.left(seq(
+    'for', '(', forInit(), ';', forTest(), ';', forIncr(), ')',
+      ctxtStmt
+  ));
+}
+
+function ctxtWhile($, ctxtStmt) {
+  return prec.left(seq('while', '(', $.expression, ')', ctxtStmt));
+}
+
+
 module.exports = grammar({
   name : "bsv",
 
   rules : {
-    sourceFile : $ => choice(
-                    prec.left(seq(
-                      'package', $.packageIde, ';', repeat($.exportDecl),
-                        repeat($.importDecl),
-                        repeat($.packageStmt),
-                      'endpackage', optional(seq(':', $.packageIde))
-                    )),
-                    prec.left(seq(
-                      repeat($.exportDecl),
-                      repeat($.importDecl),
-                      repeat($.packageStmt),
-                    )),
-                   ),
 
-    packageIde : $ => $.identifier, // BSV lang ref guide requires upper case; the
-                                     // actual bsc implementation does not care...
+    // =============================================================
+    // sec 3 Packages and the outermost structure of a BSV design
 
-    exportDecl : $ => prec.left(seq(
-      'export', $.exportItem, repeat(seq(',', $.exportItem)), ';'
-    )),
-
-    exportItem : $ => choice(prec.left(seq($.identifier, optional(seq('(', '..', ')')))),
-                             prec.left(seq($.Identifier, optional(seq('(', '..', ')')))),
-                             prec.left(seq($.packageIde, '::', '*'))),
-
-    importDecl : $ => prec.left(
-      seq('import', $.importItem, repeat(seq(',', $.importItem)), ';')
+    sourceFile: $ => choice(
+      seq(
+        'package', $.packageIde, ';', 
+          repeat($.exportDecl),
+          repeat($.importDecl),
+          repeat($.packageStmt),
+        'endpackage', optseq(':', $.packageIde)
+      ),
+      // NOTE: The actual bsc implementation allows files 
+      // without a package declaration.
+      seq(
+        repeat($.exportDecl),
+        repeat($.importDecl),
+        repeat($.packageStmt),
+      ),
     ),
 
-    importItem : $ => prec.left(seq($.packageIde, '::', '*')),
+    // NOTE: Ignore compiler directives for now. Assume pre-processed source.
+    //       The directives use C syntax, so any C pre-processor works on these.
+    //       Alternatively, we could use preprocessor rules from tree-sitter-c
+    // compilerDirective: $ => choice(
+    //   seq("'include", '"', $.filename, '"'),
+    //   seq("'include", '<', $.filename, '>'),
+    //   seq("'include", $.macroInvocation),
+    //   seq("'line", $.decDigits, '"', $.filename, '"', $.level),
+    //   seq("'define", $.macroName, optseq('(', $.macroFormals, ')'), $.macroText),
+    // ),
+    // level: $ => choice('0', '1', '2'),
 
-    packageStmt : $ => choice(
+    exportDecl: $ => prec.left(seq(
+      'export', $.exportItem, repeatseq(',', $.exportItem), ';'
+    )),
+    exportItem: $ => choice(
+      seq($.identifier, optseq('(', '..', ')')),
+      seq($.Identifier, optseq('(', '..', ')')),
+      seq($.packageIde, '::', '*')
+    ),
+
+    importDecl: $ => seq('import', $.importItem, repeatseq(',', $.importItem), ';'),
+    importItem: $ => seq($.packageIde, '::', '*'),
+
+    packageStmt: $ => choice(
+      $.moduleDef,
       $.interfaceDecl, 
       $.typeDef, 
+      $.varDecl, 
+      // NOTE: Not allowed at package scope:
+      // $.varAssign, 
+      $.functionDef,
       $.typeclassDef,
       $.typeclassInstanceDef,
-      // $.externModuleImport, // TODO: Add this, sec. 15 from BSV lang ref
+      // TODO: Add externModuleImport, sec. 15 from BSV lang ref
+      // $.externModuleImport, 
+      // NOTE: missing in the spec:
       $.externCImport, 
-      $.varDecl, 
-      $.functionDef,
-      $.moduleDef
     ),
 
-    // ================================================================
-    // Statement: Interface Declarations
+    //  NOTE: BSV lang ref guide requires upper case; 
+    //  the actual bsc implementation does not care...
+    packageIde: $ => $.identifier, 
 
-    interfaceDecl : $ => prec.left(seq(
+    // ================================================================
+    // sec 4 Types
+
+    type: $ => choice(
+      $.typePrimary, 
+      prec.left(seq(
+        $.typePrimary, '(', $.type, repeatseq(',', $.type), ')'
+      ))
+    ),
+
+    typePrimary: $ => choice(
+      seq($.typeIde, optseq('#', '(', $.type, repeatseq(',', $.type), ')')),
+      $.typeNat,
+      seq('bit', optseq($.typeNat, ':', $.typeNat))
+    ),
+
+    // NOTE: To quote from BSV reference manual: Data types in BSV are case 
+    // sensitive. The first character of a type is almost always uppercase, the
+    // only exceptions being the types int and bit for compatibility with Verilog.
+    typeIde: $ => $.identifier,
+    typeNat: $ => $.decDigits,
+
+    // ================================================================
+    // sec 5.2 Interface declaration
+
+    interfaceDecl: $ => seq(
       optional($.attributeInstance), 
       'interface', $.typeDefType, ';', 
         repeat($.interfaceMemberDecl),
-      'endinterface', optional(seq(':', $.typeIde))
-    )),
+      'endinterface', optseq(':', $.typeIde)
+    ),
 
-    interfaceMemberDecl : $ => choice($.methodProto, $.subinterfaceDecl),
+    typeDefType: $ => seq(
+      $.typeIde, optional($.typeFormals)
+    ),
+    typeFormals: $ => seq(
+      '#', '(', $.typeFormal, repeatseq(',', $.typeFormal), ')'
+    ),
+    typeFormal: $ => seq(
+      optional(choice('numeric', 'string')), 'type', $.typeIde
+    ),
 
-    methodProto : $ => prec.left(seq(
+    interfaceMemberDecl: $ => choice($.methodProto, $.subinterfaceDecl),
+
+    methodProto: $ => seq(
       optional($.attributeInstances), 
-      'method', $.type, $.identifier,
-        optional(seq('(', $.methodProtoFormals, ')')), 
-      ';')
+      'method', $.type, $.identifier, '(', optional($.methodProtoFormals), ')', ';'
     ),
 
-    methodProtoFormals : $ => prec.left(seq(
-      $.methodProtoFormal, repeat(seq(',', $.methodProtoFormal))
-    )),
-    methodProtoFormal : $ => prec.left(seq(
+    methodProtoFormals: $ => seq(
+      $.methodProtoFormal, repeatseq(',', $.methodProtoFormal)
+    ),
+    methodProtoFormal: $ => seq(
       optional($.attributeInstances), $.type, $.identifier,
-    )),
-
-    subinterfaceDecl : $ => prec.left(
-      seq(optional($.attributeInstances), 'interface', $.type, $.identifier, ';'),
     ),
 
-    expressionStmt : $ => choice(
+    // NOTE: Spec seems to be missing "identifier".
+    subinterfaceDecl: $ => seq(
+      optional($.attributeInstances), 'interface', $.type, $.identifier, ';'
+      // optional($.attributeInstances), 'interface', $.typeDefType, $.identifier, ';'
+    ),
+
+    // ================================================================
+    // sec 5.3 Module definition
+
+    moduleDef: $ => seq(
+      optional($.attributeInstances), 
+      $.moduleProto,
+        repeat($.moduleStmt), 
+      'endmodule', optseq(':', $.identifier)
+    ),
+
+    moduleProto: $ => seq(
+      'module', optseq('[', $.type, ']'), $.identifier,
+      optional($.moduleFormalParams), '(', optional($.moduleFormalArgs), ')',
+      optional($.provisos), ';'
+    ),
+    moduleFormalParams: $ => seq(
+      '#', '(', $.moduleFormalParam, repeatseq(',', $.moduleFormalParam), ')'
+    ),
+    moduleFormalParam: $ => prec.left(seq(
+      optional($.attributeInstances), optional('parameter'), $.type, $.identifier
+    )),
+    moduleFormalArgs: $ => choice(
+      seq(optional($.attributeInstances), $.type),
+      seq(optional($.attributeInstances), $.type, $.identifier,
+          repeatseq(',', optional($.attributeInstances), $.type, $.identifier))
+    ),
+
+    moduleStmt: $ => choice(
+      $.moduleInst,
+      $.methodDef,
+      $.subinterfaceDef,
+      $.rule, 
+      $.varDo,
+      $.varDeclDo,
+      $.functionCall,
+      $.systemTaskStmt,
+      seq('(', $.expression, ')'),
+      $.returnStmt,
       $.varDecl,
       $.varAssign,
       $.functionDef,
       $.moduleDef,
-      $.beginEndStmt,
-      $.If,
-      $.Case,
-      $.For,
-      $.While,
+      ctxtBeginEndStmt($, $.moduleStmt),
+      ctxtIf($, $.moduleStmt),
+      ctxtCase($, $.moduleStmt),
+      ctxtFor($, $.moduleStmt),
+      ctxtWhile($, $.moduleStmt),
+    ),
+
+
+    // ============================================================
+    // sec 5.4 Module and interface instantiation
+
+    // sec 5.4.1 Short form instantiation
+    moduleInst: $ => seq(
+      optional($.attributeInstances),
+      $.type, $.identifier, '<-', $.moduleApp, ';'
+    ),
+    moduleApp: $ => seq(
+      $.identifier, '(', 
+        optseq($.moduleActualParamArg, repeatseq(',', $.moduleActualParamArg)),
+      ')'
+    ),
+    moduleActualParamArg: $ => choice(
+      $.expression,
+      seq('clocked_by', $.expression),
+      seq('reset_by', $.expression)
+    ),
+
+    // sec 5.4.2 Long form instantiation (depractaed)
+    moduleInstLongForm: $ => seq(
+      optional($.attributeInstances), 
+      $.type, $.identifier, '(', ')', ';', 
+      $.moduleApp2, $.identifier, '(', optional($.moduleActualArgs), ')', ';'
+    ),
+    moduleApp2: $ => seq(
+      $.identifier, optseq('#', 
+        '(', $.moduleActualParam,repeatseq(',', $.moduleActualParam)), ')'
+    ),
+    moduleActualParam: $ => $.expression,
+    moduleActualArgs: $ => seq(
+      $.moduleActualParamArg, repeatseq(',', $.moduleActualParamArg)
+    ),
+
+    // ============================================================
+    // sec 5.5 Interface definition (definition of methods)
+
+    // NOTE: Parens in method definition should be optional.
+    //       It should also be possible to have empty parens.
+    //       The spec is wrong here.
+    methodDef: $ => choice(
+      seq(
+        'method', optional($.type), $.identifier,
+          optseq('(', optional($.methodFormals), ')'),
+          optional($.implicitCond), ';', 
+            $.functionBody,
+        'endmethod', optseq(':', $.identifier)
+      ),
+      // Short form (sec 5.5.3)
+      seq(
+        'method', optional($.type), $.identifier, 
+        optseq('(', optional($.methodFormals), ')'),
+        optional($.implicitCond), '=', $.expression, ';'
+      ),
+      // Action method (sec. 5.5.1)
+      seq(
+        'method', 'Action', $.identifier,
+          optseq('(', optional($.methodFormals), ')'),
+          optional($.implicitCond), ';', 
+            repeat($.actionStmt),
+        'endmethod', optseq(':', $.identifier),
+      ),
+      // ActionValue method (sec. 5.5.1)
+      seq(
+        'method', 'ActionValue', $.typeFormals, $.identifier,
+          optseq('(', optional($.methodFormals), ')'),
+          optional($.implicitCond), ';', 
+            repeat($.actionValueStmt),
+        'endmethod', optseq(':', $.identifier),
+      ),
+    ),
+
+    methodFormals: $ => seq($.methodFormal, repeatseq(',', $.methodFormal)),
+    methodFormal: $ => seq(optional($.type), $.identifier),
+    implicitCond: $ => prec.right(seq('if', '(', $.condPredicate, ')')),
+    
+    // 5.5.2 Definition of subinterfaces
+    subinterfaceDef: $ => choice(
+      seq(
+        'interface', $.Identifier, $.identifier, ';',
+          repeat($.interfaceStmt), 
+        'endinterface', optseq(':', $.identifier)
+      ),
+      // Short form (sec 5.5.3)
+      seq(
+        'interface', optional($.type), $.identifier, '=', $.expression, ';'
+      ),
+    ),
+    interfaceStmt: $ => choice(
+      $.methodDef, 
+      $.subinterfaceDef,
+      $.expressionStmt
+    ),
+
+    expressionStmt: $ => choice(
+      $.varDecl,
+      $.functionDef,
+      $.moduleDef,
+      ctxtBeginEndStmt($, $.expressionStmt),
+      ctxtIf($, $.expressionStmt),
+      ctxtCase($, $.expressionStmt),
+      ctxtFor($, $.expressionStmt),
+      ctxtWhile($, $.expressionStmt),
+    ),
+
+    // ============================================================
+    // sec 5.6 Rules in module definitions
+
+    rule: $ => prec.left(seq(
+      optional($.attributeInstances), 
+      'rule', $.identifier, optional($.ruleCond), ';', 
+        repeat($.actionStmt), // rule body
+      'endrule', optional(seq(':', $.identifier))
+    )),
+    ruleCond: $ => prec.left(seq('(', $.condPredicate, ')')),
+    condPredicate: $ => prec.left(seq(
+      $.exprOrCondPattern, repeatseq('&&&', $.exprOrCondPattern)
+    )),
+    exprOrCondPattern: $ => choice(
+      $.expression,
+      seq($.expression, 'matches', $.pattern)
     ),
 
     // ================================================================
     // Typedefs
 
-    typeDef : $ => choice(
+    typeDef: $ => choice(
       $.typedefSynonym, 
       $.typedefEnum, 
       $.typedefStruct,
       $.typedefTaggedUnion
     ),
 
-    typeDefType : $ => prec.left(seq(
-      $.typeIde, optional($.typeFormals)
-    )),
-    typeFormals : $ => prec.left(seq(
-      '#', '(', $.typeFormal, repeat(seq(',', $.typeFormal)), ')'
-    )),
-    typeFormal : $ => prec.left(seq(
-      optional('numeric'), 'type', $.typeIde
-    )),
-
-    // Synonym typedefs
-    typedefSynonym : $ => prec.left(seq(
+    typedefSynonym: $ => prec.left(seq(
       'typedef', $.type, $.typeDefType, ';'
     )),
 
-    // Enum typedefs
-    typedefEnum : $ => prec.left(seq(
-      'typedef', 'enum', repeat($.typedefEnumElements), $.Identifier, optional($.derives), ';'
-    )),
-    typedefEnumElements : $ => prec.left(seq(
-      $.typedefEnumElement, repeat(seq(',', $.typedefEnumElement))
-    )),
-    typedefEnumElement : $ => choice(
-                           prec.left(seq($.Identifier, optional(seq('=', $.intLiteral)))),
-                           prec.left(seq($.Identifier, '[', $.intLiteral, ']',
-                                     optional(seq('=', $.intLiteral)))),
-                           prec.left(seq($.Identifier, '[', $.intLiteral, ':', $.intLiteral, ']',
-                                     optional(seq('=', $.intLiteral))))
+    typedefEnum: $ => seq(
+      'typedef', 'enum', '{', $.typedefEnumElements, '}', $.Identifier, 
+        optional($.derives), ';'
+    ),
+    typedefEnumElements: $ => seq(
+      $.typedefEnumElement, repeatseq(',', $.typedefEnumElement)
+    ),
+    typedefEnumElement: $ => choice(
+      prec.left(seq($.Identifier, optseq('=', $.intLiteral))),
+      prec.left(seq($.Identifier, '[', $.intLiteral, ']',
+                  optseq('=', $.intLiteral))),
+      prec.left(seq($.Identifier, '[', $.intLiteral, ':', $.intLiteral, ']',
+                  optseq('=', $.intLiteral)))
     ),
 
-    // Struct and taggedunion typedefs
-    typedefStruct : $ => prec.left(seq(
-      'typedef', 'struct', '{', repeat($.structMember), '}', $.typeDefType, optional($.derives), ';'
+    // sec 7.3 Structs and tagged unions
+    typedefStruct: $ => prec.left(seq(
+      'typedef', 'struct', '{', 
+        repeat($.structMember), 
+      '}', $.typeDefType, optional($.derives), ';'
     )),
-
-    typedefTaggedUnion : $ => prec.left(seq(
+    typedefTaggedUnion: $ => prec.left(seq(
       'typedef', 'union', 'tagged', '{',
         repeat($.unionMember), 
       '}', $.typeDefType, optional($.derives), ';'
     )),
-
-    structMember : $ => choice(prec.left(seq($.type, $.identifier, ';')),
-                               prec.left(seq($.subUnion, $.identifier, ';'))),
-
-    unionMember : $ => choice(prec.left(seq($.type, $.Identifier, ';')),
-                              prec.left(seq($.subStruct, $.Identifier, ';')),
-                              prec.left(seq($.subUnion, $.Identifier, ';')),
-                              prec.left(seq('void', $.Identifier, ';'))),
-
-    subStruct : $ => prec.left(seq(
-      'struct', '{', repeat($.structMember), '}'
+    structMember: $ => choice(
+      prec.left(seq($.type, $.identifier, ';')),
+      prec.left(seq($.subUnion, $.identifier, ';'))
+    ),
+    unionMember: $ => choice(
+      prec.left(seq($.type, $.Identifier, ';')),
+      prec.left(seq($.subStruct, $.Identifier, ';')),
+      prec.left(seq($.subUnion, $.Identifier, ';')),
+      prec.left(seq('void', $.Identifier, ';'))
+    ),
+    subStruct: $ => prec.left(seq(
+      'struct', '{', 
+        repeat($.structMember), 
+      '}'
     )),
-    subUnion : $ => prec.left(seq(
-      'union', 'tagged', '{', repeat($.unionMember), '}'
+    subUnion: $ => prec.left(seq(
+      'union', 'tagged', '{', 
+        repeat($.unionMember), 
+      '}'
     )),
 
-    derives : $ => prec.left(seq(
+
+    // ============================================================
+    // sec 8 Type classes (overloading groups) and provisos
+    
+    provisos: $ => prec.left(seq(
+      'provisos', '(', $.proviso, repeatseq(',', $.proviso), ')'
+    )),
+    proviso: $ => prec.left(seq(
+      $.Identifier, '#', '(', $.type, repeatseq(',', $.type), ')'
+    )),
+
+    typeclassDef: $ => prec.left(seq(
+      'typeclass', $.typeclassIde, $.typeFormals, optional($.provisos), 
+        optional($.typedepends), ';', 
+          repeat($.overloadedDef), 
+      'endtypeclass', optseq(':', $.typeclassIde)
+    )),
+    typeclassIde: $ => $.Identifier,
+    typedepends: $ => prec.left(seq(
+      'dependencies', '(', $.typedepend, repeatseq(',', $.typedepend), ')'
+    )),
+    typedepend: $ => prec.left(seq(
+      $.typelist, 'determines', $.typelist
+    )),
+    typelist: $ => choice(
+      $.typeIde, 
+      prec.left(seq('(', $.typeIde, repeatseq(',', $.typeIde), ')'))
+    ),
+    overloadedDef: $ => choice(
+      $.functionProto, 
+      $.varDecl,
+      $.moduleProto, // NOTE: missing moduleProto?
+    ),
+
+    // Instance declarations
+    typeclassInstanceDef: $ => prec.left(seq(
+      'instance', $.typeclassIde, '#', '(', $.type, repeatseq(',', $.type), ')',
+        optional($.provisos), ';',
+          repeat(choice(seq($.varAssign, ';'), $.functionDef, $.moduleDef)),
+      'endinstance', optseq(':', $.typeclassIde)
+    )),
+
+    derives: $ => prec.left(seq(
       'deriving', '(', $.typeclassIde, repeat(seq(',', $.typeclassIde)), ')'
     )),
 
     // ================================================================
-    // Variable declarations and initialization
+    // sec 9 Variable declarations and statements
 
-    varDecl : $ => choice(
-      prec.right(seq($.type, $.varInit, repeat(seq(',', $.varInit)), ';')),
-      prec.left(seq($.type, $.identifier, '<-', $.expression, ';')),
+    varDecl: $ => choice(
+      prec.right(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
       prec.left(seq('let', $.identifier, '=', $.expression, ';')),
+    ),
+
+    varInit: $ => prec.left(seq(
+      $.identifier, optional($.arrayDims), optseq('=', $.expression)
+    )),
+    arrayDims: $ => prec.left(seq(
+      '[', $.expression, ']', repeatseq('[', $.expression, ']')
+    )),
+
+    // Variable assignment 
+    varAssign: $ => choice(
+      prec.left(seq($.lValue, '=', $.expression, ';')),
+      // if expression is the value returned by an actionvalue method:
       prec.left(seq('let', $.identifier, '<-', $.expression, ';')),
-      prec.left(seq('match', $.pattern, '=', $.expression, ';'))
+      // sec 11.4 pattern matching
+      seq('match', $.pattern, '=', $.expression, ';')
     ),
-
-    varInit : $ => prec.left(seq(
-      $.identifier, optional($.arrayDims), optional(seq('=', $.expression))
-    )),
-    arrayDims : $ => prec.left(seq(
-      '[', $.expression, ']', repeat(seq('[', $.expression, ']'))
-    )),
-
-    // ================================================================
-    // Typeclass definitions
-
-    typeclassDef : $ => prec.left(seq(
-      'typeclass', $.typeclassIde, $.typeFormals, optional($.provisos), 
-        optional($.typedepends), ';', repeat($.overloadedDef), 
-      'endtypeclass', optional(seq(':', $.typeclassIde))
-    )),
-    typeclassIde : $ => $.Identifier,
-
-    typeFormals : $ => prec.left(seq(
-      '#', '(', $.typeFormal, repeat(seq(',', $.typeFormal)), ')'
-    )),
-    typeFormal : $ => prec.left(seq(
-      optional('numeric'), 'type', $.typeIde
-    )),
-    typedepends : $ => prec.left(seq(
-      'dependencies', '(', $.typedepend, repeat(seq(',', $.typedepend)), ')'
-    )),
-    typedepend : $ => prec.left(seq(
-      $.typelist, 'determines', $.typelist
-    )),
-    typelist : $ => choice(
-      $.typeIde, 
-      prec.left(seq('(', $.typeIde, repeat(seq(',', $.typeIde)), ')'))
+    lValue: $ => choice(
+      $.identifier, 
+      prec.right(seq($.lValue, '.', $.identifier)),
+      prec.right(seq($.lValue, '[', $.expression, ']')),
+      prec.right(seq($.lValue, '[', $.expression, ':', $.expression, ']'))
     ),
-    overloadedDef : $ => choice($.functionProto, $.moduleProto, $.varDecl),
+    varDeclDo: $ => seq($.type, $.identifier, '<-', $.expression, ';'),
+    varDo: $ => seq($.identifier, '<-', $.expression, ';'),
+    
+    regWrite: $ => choice(
+      seq($.lValue, '<=', $.expression),
+      seq('(', $.expression, ')', '<=', $.expression),
+      seq($.lValue, $.arrayIndexes, '<=', $.expression),
+      seq($.lValue, '[', $.expression, ':', $.expression, ']', '<=', $.expression),
+      seq($.lValue, '.', $.identifier, '<=', $.expression),
+    ),
+    arrayIndexes: $ => repeat1(seq('[', $.expression, ']')),
+    
     //
     // ================================================================
-    // Typeclass instance definitions
+    // sec 9.8 Function definitions
 
-    typeclassInstanceDef : $ => prec.left(seq(
-      'instance', $.typeclassIde, '#', '(', $.type, repeat(seq(',', $.type)), ')',
-      optional($.provisos), ';',
-        repeat(choice(prec.left(seq($.varAssign, ';')),
-                      $.functionDef, 
-                      $.moduleDef)),
-      'endinstance', optional(seq(':', $.typeclassIde))
-    )),
-
-    // ================================================================
-    // Module Declarations
-
-    moduleDef : $ => prec.left(seq(
+    functionDef: $ => seq(
       optional($.attributeInstances), 
-      $.moduleProto,
-        repeat($.moduleStmt), 
-      'endmodule', optional(seq(':', $.identifier))
-    )),
-
-    moduleProto : $ => prec.left(seq(
-      'module', optional(seq('[', $.type, ']')), $.identifier, 
-      optional($.moduleFormalParams), '(', optional($.moduleFormalArgs), ')',
-      optional($.provisos), ';'
-    )),
-
-    moduleFormalParams : $ => prec.left(seq(
-      '#', '(', $.moduleFormalParam, repeat(seq(',', $.moduleFormalParam)), ')'
-    )),
-
-    moduleFormalParam : $ => prec.left(seq(
-      optional($.attributeInstances), optional('parameter'), $.type, $.identifier
-    )),
-
-    moduleFormalArgs : $ => choice(
-      prec.left(seq(optional($.attributeInstances), $.type)),
-      prec.left(seq(optional($.attributeInstances), $.type, $.identifier,
-                repeat(seq(',', optional($.attributeInstances), $.type, $.identifier))))
+      $.functionProto,
+        $.functionBody, 
+      'endfunction', optseq(':', $.identifier)
     ),
-
-    moduleStmt : $ => choice(
-      $.moduleInst, 
-      $.methodDef, 
-      $.subinterfaceDef,
-      $.rule, 
-      $.Stmt
+    functionProto: $ => choice(
+      seq('function', $.type, $.identifier,
+          // NOTE: Optional parens, contrary to spec?
+          optseq('(', optional($.functionFormals), ')'), optional($.provisos), ';'
+      ),
+      // Assign to expression (sec 9.8.1). 
+      // Could also add optional(expression) to above choice arm.
+      seq('function', $.type, $.identifier,
+          optseq('(', optional($.functionFormals), ')'), optional($.provisos), 
+          $.expression, ';'
+      ),
     ),
-
-    // ----------------
-    // 5.4.1: Short form instantiation
-
-    moduleInst : $ => prec.left(seq(
-      optional($.attributeInstances),
-      $.type, $.identifier, '<-', $.moduleApp, ';'
+    functionFormals: $ => prec.left(seq(
+      $.functionFormal, repeatseq(',', $.functionFormal)
     )),
-
-    moduleApp : $ => prec.left(seq(
-      $.identifier, prec.left(optional(seq('(', $.moduleActualParamArg,
-                               repeat(seq(',', $.moduleActualParamArg)), ')')))
-    )),
-
-    moduleActualParamArg : $ => choice(
-      $.expression,
-      prec.left(seq('clocked_by', $.expression)),
-      prec.left(seq('reset_by', $.expression))
-    ),
-
-    // ----------------
-    // 5.4.2: Long form instantiation
-    // Obsolete (still exists in some very old BSV code).
-
-    moduleInst2 : $ => prec.left(seq(
-      optional($.attributeInstances), 
-      $.type, $.identifier, '(', ')', ';', $.moduleApp2, $.identifier,
-      optional(seq('(', $.moduleActualArgs, ')')), ';'
-    )),
-    moduleApp2 : $ => prec.left(seq(
-      $.identifier, optional(seq('#', '(', $.moduleActualParam,
-                              repeat(seq(',', $.moduleActualParam)), ')'))
-    )),
-    moduleActualParam : $ => $.expression,
-    moduleActualArgs : $ => prec.left(seq(
-      $.moduleActualArg, repeat(seq(',', $.moduleActualArg))
-    )),
-    moduleActualArg : $ => choice(
-      $.expression, 
-      prec.left(seq('clocked_by', $.expression)), 
-      prec.left(seq('reset_by', $.expression))
-    ),
-
-    // ----------------
-    // 5.5 Interface definition (definition of methods)
-
-    methodDef : $ => prec.left(seq(
-      'method', optional($.type), $.identifier,
-        optional(seq('(', optional($.methodFormals), ')')),
-        optional($.implicitCond), ';', 
-        $.functionBody,
-      'endmethod', optional(seq(':', $.identifier))
-    )),
-    methodFormals : $ => prec.left(seq($.methodFormal, repeat(seq(',', $.methodFormal)))),
-    methodFormal : $ => prec.left(seq(optional($.type), $.identifier)),
-    implicitCond : $ => prec.left(seq('if', '(', $.condPredicate, ')')),
-
-    // 5.5.2 Definition of subinterfaces
-
-    subinterfaceDef : $ => prec.left(seq(
-      'interface', $.Identifier, $.identifier, ';',
-        repeat($.interfaceStmt), 
-      'endinterface', optional(seq(':', $.identifier))
-    )),
-    interfaceStmt : $ => choice($.methodDef, $.subinterfaceDef),
-
-    // 5.5.3 Definition of methods and subinterfaces by assignment
-
-    methodDef : $ => prec.left(seq(
-      'method', optional($.type), $.identifier, '(', $.methodFormals, ')', 
-      optional($.implicitCond), '=', $.expression, ';'
-    )),
-    subinterfaceDef : $ => prec.left(seq(
-      'interface', optional($.type), $.identifier, '=', $.expression, ';'
-    )),
-
-    // ----------------
-    // 5.6 Rules in module definitions
-
-    rule : $ => prec.left(seq(
-      optional($.attributeInstances), 
-      'rule', $.identifier, optional($.ruleCond), ';', 
-        repeat($.Stmt), 
-      'endrule', optional(seq(':', $.identifier))
-    )),
-    ruleCond : $ => prec.left(seq('(', $.condPredicate, ')')),
-
-    // ================================================================
-    // Function definition
-
-    functionDef : $ => choice(
-      prec.left(seq(
-        optional($.attributeInstances), 
-        $.functionProto,
-          repeat($.functionBody), 
-        'endfunction', optional(seq(':', $.identifier))
-      )),
-      prec.left(seq(
-        $.functionProto, '=', $.expression, ';')
-      )
-    ),
+    functionFormal: $ => prec.left(seq($.type, $.identifier)),
 
     functionBody: $ => choice(
       $.actionBlock,
       $.actionValueBlock,
-      prec.left(repeat1($.functionBodyStmt)),
+      // NOTE: Spec allows repeat0, but there is no way to have an empty body?
+      repeat1($.functionBodyStmt),
     ),
-
     functionBodyStmt: $ => choice(
       $.returnStmt, 
       $.varDecl, 
       $.varAssign, 
       $.functionDef,
       $.moduleDef, 
-      $.beginEndBlock, 
-      $.If, 
-      $.Case, 
-      $.For, 
-      $.While
+      ctxtBeginEndStmt($, $.functionBodyStmt),
+      ctxtIf($, $.functionBodyStmt),
+      ctxtCase($, $.functionBodyStmt),
+      ctxtFor($, $.functionBodyStmt),
+      ctxtWhile($, $.functionBodyStmt),
     ),
-
     returnStmt: $ => seq('return', $.expression, ';'),
 
-    functionProto : $ => prec.left(seq(
-      'function', $.type, $.identifier,
-      optional(seq('(', $.functionFormals, ')')),
-      optional($.provisos), ';'
-    )),
-    functionFormals : $ => prec.left(seq(
-      $.functionFormal, repeat(seq(',', $.functionFormal))
-    )),
-    functionFormal : $ => prec.left(seq($.type, $.identifier)),
 
     // ================================================================
-    // Importing C functions
+    // sec 10 Expressions
 
-    externCImport : $ => prec.left(seq(
-      'import', '"BDPI"',
-      optional(seq($.identifier, '=')), 'function', $.type, 
-      $.identifier, '(', optional($.CFuncArgs), ')', optional($.provisos), ';'
-    )),
-    CFuncArgs : $ => prec.left(seq(
-      $.CFuncArg, repeat(seq(',', $.CFuncArg))
-    )),
-    CFuncArg : $ => prec.left(seq(
-      $.type, optional($.identifier)
-    )),
-
-    // ================================================================
-    // Variable assignment (for variables already declared)
-    varAssign : $ => choice(
-      prec.left(seq($.lValue, '=', $.expression, ';')),
-      prec.left(seq($.identifier, '<-', $.expression, ';'))
-    ),
-    lValue : $ => choice(
-      $.identifier, 
-      prec.left(seq($.lValue, '.', $.identifier)),
-      prec.left(seq($.lValue, '[', $.expression, ']')),
-      prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']'))
-    ),
-
-    // ================================================================
-    // Types
-
-    type : $ => choice(
-      $.typePrimary, 
-      prec.left(seq(
-        $.typePrimary, '(', $.type, repeat(prec.left(seq(',', $.type))), ')'
-      ))
-    ),
-
-    typePrimary : $ => choice(
-      prec.left(seq($.typeIde, optional(seq('#', '(', $.type, repeat(seq(',', $.type)), ')')))),
-      $.typeNat,
-      prec.left(seq('bit', optional(seq($.typeNat, ':', $.typeNat))))
-    ),
-
-    // To quote from BSV reference manual: Data types in BSV are case sensitive. 
-    // The first character of a type is almost always uppercase, the
-    // only exceptions being the types int and bit for compatibility with Verilog.
-    typeIde : $ => $.identifier,
-    typeNat : $ => $.decDigits,
-
-    // ================================================================
-    // Expressions
-
-    expression : $ => choice(
+    expression: $ => choice(
       $.condExpr, 
       $.operatorExpr, 
       $.exprPrimary
     ),
 
-    condExpr : $ => prec.right(seq(
+    condExpr: $ => prec.right(seq(
       $.condPredicate, '?', $.expression, ':', $.expression
     )),
 
-    operatorExpr : $ => choice(
+    operatorExpr: $ => choice(
       prec.right(seq($.unop, $.expression)),
       prec.left(seq($.expression, $.binop, $.expression))
     ),
 
     // The following operators are in order of decreasing precedence
-    unop : $ => token(choice(
+    unop: $ => token(choice(
       prec(90, '+'),
       prec(90, '-'),
       prec(90, '!'),
@@ -480,7 +633,7 @@ module.exports = grammar({
       prec(84, '^~'),
       prec(84, '~^'),
     )),
-    binop : $ => token(choice(
+    binop: $ => token(choice(
       prec(83, '*'),
       prec(83, '/'),
       prec(83, '%'),
@@ -503,268 +656,197 @@ module.exports = grammar({
       prec(73, '||'),
     )),
 
-    exprPrimary : $ => choice(
-      prec.left(seq('(', $.expression, ')')),
-      prec.left(seq($.exprPrimary, '.', $.identifier)),
+    exprPrimary: $ => choice(
       $.identifier,
       $.intLiteral,
       $.realLiteral,
       $.stringLiteral,
-      '?',
+      $.systemFunctionCall,
+      field('dont_care', '?'),
+      prec.left(seq('(', $.expression, ')')),
       seq('valueOf', '(', $.type, ')'),
       seq('valueof', '(', $.type, ')'),
       $.bitConcat,
       $.bitSelect,
+      $.beginEndExpr,
+      $.actionBlock,
+      $.actionValueBlock,
       $.functionCall,
       $.methodCall,
       $.typeAssertion,
       $.structExpr,
+      prec.left(seq($.exprPrimary, '.', $.identifier)),
       $.taggedUnionExpr,
       $.interfaceExpr,
       $.rulesExpr,
-      $.beginEndBlock,
-      $.actionBlock,
-      $.actionValueBlock,
       $.seqFsmStmt,
       $.parFsmStmt,
     ),
 
-    bitConcat : $ => seq(
-      '{', $.expression, repeat(seq(',', $.expression)), '}'
+    bitConcat: $ => seq(
+      '{', $.expression, repeatseq(',', $.expression), '}'
     ),
-    bitSelect : $ => prec.left(seq(
-      $.exprPrimary, '[', $.expression, optional(seq(':', $.expression)), ']'
+    bitSelect: $ => prec.left(seq(
+      $.exprPrimary, '[', $.expression, optseq(':', $.expression), ']'
     )),
 
-    // functionCall ::= exprPrimary [ '(' [ expression { ',' expression } ] ')' ]
-    //  NOTE: We make parens madatory.
-    functionCall : $ => prec.left(seq(
+    beginEndExpr: $ => prec.left(seq(
+      'begin', optseq(':', $.identifier),
+        repeat($.expressionStmt), 
+        $.expression, 
+      'end', optseq(':', $.identifier)
+    )),
+
+    actionBlock: $ => prec.left(seq(
+      'action', optional(seq(':', $.identifier)),
+        repeat($.actionStmt), 
+      'endaction', optseq(':', $.identifier)
+    )),
+    actionStmt: $ => choice(
+      $.regWrite,
+      $.varDo,
+      $.varDeclDo,
+      $.functionCall,
+      $.systemTaskStmt,
+      seq('(', $.expression, ')'),
+      $.actionBlock,
+      $.varDecl,
+      $.varAssign,
+      $.functionDef,
+      $.methodDef,
+      ctxtBeginEndStmt($, $.actionStmt),
+      ctxtIf($, $.actionStmt),
+      ctxtCase($, $.actionStmt),
+      ctxtFor($, $.actionStmt),
+      ctxtWhile($, $.actionStmt),
+    ),
+
+    actionValueBlock: $ => prec.left(seq(
+      'actionvalue', optional(seq(':', $.identifier)),
+        repeat($.actionValueStmt), 
+      'endactionvalue', optseq(':', $.identifier)
+    )),
+    actionValueStmt: $ => choice(
+      $.regWrite,
+      $.varDo,
+      $.varDeclDo,
+      $.functionCall,
+      $.systemTaskStmt,
+      seq('(', $.expression, ')'),
+      $.returnStmt,
+      $.varDecl,
+      $.varAssign,
+      $.functionDef,
+      $.methodDef,
+      ctxtBeginEndStmt($, $.actionValueStmt),
+      ctxtIf($, $.actionValueStmt),
+      ctxtCase($, $.actionValueStmt),
+      ctxtFor($, $.actionValueStmt),
+      ctxtWhile($, $.actionValueStmt),
+    ),
+
+    // NOTE: We make function and method call parens madatory, 
+    //       contrary to spec, but same as bsc compiler implementation.
+    functionCall: $ => prec.left(seq(
       $.exprPrimary, 
       '(',
-        optional(seq($.expression, repeat(seq(',', $.expression)))),
+        optseq($.expression, repeatseq(',', $.expression)),
       ')'
     )),
-
-    // methodCall ::= exprPrimary '.' identifier [ '(' [ expression { ',' expression } ] ')' ]
-    //  NOTE: We make parens madatory.
-    methodCall : $ => prec.left(seq(
+    methodCall: $ => prec.left(seq(
       $.exprPrimary, '.', $.identifier,
       '(',
-        optional(seq($.expression, repeat(seq(',', $.expression)))),
+        optseq($.expression, repeatseq(',', $.expression)),
       ')',
     )),
 
-    typeAssertion : $ => choice(
-      prec.left(seq($.type, '’', $.bitConcat)),
-      prec.left(seq($.type, '’', '(', $.expression, ')'))
+    typeAssertion: $ => choice(
+      seq($.type, '’', $.bitConcat),
+      seq($.type, '’', '(', $.expression, ')')
     ),
 
-    structExpr : $ => prec.left(seq(
+    structExpr: $ => seq(
       $.Identifier, '{', 
-        $.memberBind,
-        repeat(seq(',', $.memberBind)), 
+        $.memberBind, repeatseq(',', $.memberBind), 
       '}'
-    )),
-    taggedUnionExpr : $ => choice(
-      prec.left(seq('tagged', $.Identifier, '{', $.memberBind,
-                repeat(seq(',', $.memberBind)), '}')),
+    ),
+    memberBind: $ => seq($.identifier, ':', $.expression),
+
+    taggedUnionExpr: $ => choice(
+      seq('tagged', $.Identifier, '{', $.memberBind, repeatseq(',', $.memberBind), '}'),
       prec.left(seq('tagged', $.Identifier, $.exprPrimary))
     ),
-    memberBind : $ => prec.left(seq($.identifier, ':', $.expression)),
 
-    interfaceExpr : $ => prec.left(seq(
+    interfaceExpr: $ => prec.left(seq(
       'interface', $.Identifier, ';',
         repeat($.interfaceStmt), 
-      'endinterface', optional(seq(':', $.Identifier))
+      'endinterface', optseq(':', $.Identifier)
     )),
-    interfaceStmt : $ => choice($.methodDef, $.subinterfaceDef, $.expressionStmt),
+    interfaceStmt: $ => choice(
+      $.methodDef, 
+      $.subinterfaceDef, 
+      $.expressionStmt
+    ),
 
-    rulesExpr : $ => prec.left(seq(
+    rulesExpr: $ => prec.left(seq(
       optional($.attributeInstances), 
-      'rules', optional(seq(':', $.identifier)), 
+      'rules', optseq(':', $.identifier), 
         $.rulesStmt,
-      'endrules', optional(seq(':', $.identifier))
+      'endrules', optseq(':', $.identifier)
       )),
-    rulesStmt : $ => choice($.rule, $.expressionStmt),
-
-    // ----------------
-    // Blocks: begin-end, action-endaction, actionvalue-endactionvalue
-    // and bodies of functions, methods and rules
-
-    beginEndBlock : $ => prec.left(seq(
-      'begin', optional(seq(':', $.identifier)),
-        repeat($.Stmt), 
-        $.expression, 
-      'end', optional(seq(':', $.identifier))
-    )),
-
-    beginEndStmt : $ => prec.left(seq(
-      'begin', optional(seq(':', $.identifier)),
-        repeat($.Stmt), 
-      'end', optional(seq(':', $.identifier))
-    )),
-
-    actionBlock : $ => prec.left(seq(
-      'action', optional(seq(':', $.identifier)),
-        repeat($.Stmt), 'endaction',
-      optional(prec.left(seq(':', $.identifier)))
-    )),
-
-    actionValueBlock : $ => prec.left(seq(
-      'actionvalue', optional(seq(':', $.identifier)),
-        repeat($.Stmt), 'endactionvalue',
-      optional(seq(':', $.identifier))
-    )),
-
-    regWrite : $ => prec.left(seq($.expression, '<=', $.expression)),
-
-    // ----------------
-    // General statements
-
-    Stmt : $ => choice(
-      $.expression, 
-      $.varDecl, 
-      $.varAssign, 
-      $.functionDef,
-      $.moduleDef, 
-      $.beginEndBlock, 
-      $.If, 
-      $.Case, 
-      $.For, 
-      $.While
+    rulesStmt: $ => choice(
+      $.rule, 
+      $.expressionStmt
     ),
-
-    
-
-    // ----------------
-    // Conditionals
-
-    If : $ => prec.left(seq(
-      'if', '(', $.condPredicate, ')', $.Stmt,
-      optional(seq('else', $.Stmt))
-    )),
-
-    Case : $ => choice(
-      prec.left(seq(
-        'case', '(', $.expression, ')',
-          repeat($.CaseItem),
-          optional($.DefaultItem),
-        'endcase',
-      )),
-      prec.left(seq(
-        'case', '(', $.expression, ')', 'matches',
-          repeat($.CasePatItem), 
-          optional($.DefaultItem),
-        'endcase'
-      ))
-    ),
-    CaseItem : $ => prec.left(seq(
-      $.expression, repeat(seq(',', $.expression)), ':', $.Stmt
-    )),
-    CasePatItem : $ => prec.left(seq(
-      $.pattern, repeat(seq('&&&', $.expression)), ':', $.Stmt
-    )),
-    DefaultItem : $ => prec.left(seq('default', optional(':'), $.Stmt)),
-
-    // ----------------
-    // Static loops
-
-    While : $ => prec.left(seq('while', '(', $.expression, ')', $.Stmt)),
-    For : $ => prec.left(seq(
-      'for', '(', $.forInit, ';', $.forTest, ';', $.forIncr, ')',
-        $.Stmt
-    )),
-    forInit : $ => choice($.forOldInit, $.forNewInit),
-
-    forOldInit : $ => prec.left(seq(
-      $.simpleVarAssign, repeat(seq(',', $.simpleVarAssign))
-    )),
-    simpleVarAssign : $ => prec.left(seq($.identifier, '=', $.expression)),
-
-    forNewInit : $ => prec.left(seq(
-      $.type, $.identifier, '=', $.expression,
-      repeat(seq(',', $.simpleVarDeclAssign))
-    )),
-    simpleVarDeclAssign : $ => prec.left(seq(
-      optional($.type), $.identifier, '=', $.expression),
-    ),
-
-    forTest : $ => $.expression,
-    forIncr : $ => prec.left(seq(
-      $.varIncr, repeat(seq(',', $.varIncr))
-    )),
-    varIncr : $ => prec.left(seq(
-      $.identifier, '=', $.expression
-    )),
 
     // ================================================================
-    // Cond predicates occur in method def implicit conditions, rule
-    // conditions, if expressions, pattern-matching case expressions, ...
+    // sec 11 Pattern matching
 
-    condPredicate : $ => prec.left(
-      seq($.exprOrCondPattern, repeat(prec.left(seq('&&&', $.exprOrCondPattern))))
+    pattern: $ => choice(
+      prec.right(seq('.', $.identifier)),
+      '.*',
+      $.constantPattern,
+      $.taggedUnionPattern,
+      $.structPattern,
+      $.tuplePattern,
     ),
-    exprOrCondPattern : $ => choice($.expression,
-                                    prec.left(seq($.expression, 'matches', $.pattern))),
-
-    // ================================================================
-    // Patterns occur in condPredicates
-
-    pattern : $ => choice(
-                prec.left(seq('.', $.identifier)),
-                '.*',
-                $.constantPattern,
-                $.taggedUnionPattern,
-                $.structPattern,
-                $.tuplePattern,
-    ),
-
-    constantPattern : $ => choice(
+    constantPattern: $ => choice(
       $.intLiteral, 
       $.realLiteral, 
       $.stringLiteral,
       $.Identifier
     ),
-
-    taggedUnionPattern : $ => prec.left(seq(
+    taggedUnionPattern: $ => prec.left(seq(
       'tagged', $.Identifier, optional($.pattern)
     )),
-    structPattern : $ => prec.left(seq(
-      'tagged', $.Identifier, '{', $.identifier, ':', $.pattern,
-      repeat(seq(',', $.identifier, ':', $.pattern)), '}'
+    structPattern: $ => prec.left(seq(
+      $.Identifier, '{', $.identifier, ':', $.pattern,
+                         repeatseq(',', $.identifier, ':', $.pattern), '}'
     )),
-    tuplePattern : $ => prec.left(seq(
-      '{', $.pattern, repeat(seq(',', $.pattern)), '}'
+    tuplePattern: $ => prec.left(seq(
+      '{', $.pattern, repeatseq(',', $.pattern), '}'
     )),
+
+    // ============================================================
+    // sec 11.2 Case expressions with pattern matching
+
+    caseExpr: $ => prec.left(seq(
+      'case', '(', $.expression, ')', 'matches'.
+        repeat($.caseExprItem),
+      'endcase'
+    )),
+      
+    caseExprItem: $ => choice(
+      prec.left(seq(
+        $.pattern, optseq('&&&', $.expression), ':', $.expression
+      )),
+      seq('default', optional(':'), $.expression)
+    ),
 
     // ================================================================
-    // Attributes
+    // sec 12 Finite State Machines
 
-    attributeInstances : $ => prec.left(seq(
-      $.attributeInstance, repeat($.attributeInstance)
-    )),
-    attributeInstance : $ => prec.left(seq(
-      '(*', $.attrSpec, repeat(seq(',', $.attrSpec)), '*)'
-    )),
-    attrSpec : $ => prec.left(seq(
-      $.attrName, optional(seq('=', $.expression))
-    )),
-    attrName : $ => choice($.identifier, $.Identifier),
-
-    // ================================================================
-    // Provisos
-
-    provisos : $ => prec.left(seq(
-      'provisos', '(', $.proviso, repeat(seq(',', $.proviso)), ')'
-    )),
-    proviso : $ => prec.left(seq(
-      $.Identifier, '#', '(', $.type, repeat(seq(',', $.type)), ')'
-    )),
-
-    // ================================================================
-    // StmtFSM
-
-    fsmStmt : $ => choice(
+    fsmStmt: $ => choice(
       $.exprFsmStmt,
       $.seqFsmStmt,
       $.parFsmStmt,
@@ -774,133 +856,195 @@ module.exports = grammar({
       $.forFsmStmt,
       $.returnFsmStmt,
     ),
-
-    exprFsmStmt : $ => choice(
-      prec.left(seq($.regWrite, ';')), 
-      prec.left(seq($.expression, ';'))
+    exprFsmStmt: $ => choice(
+      seq($.regWrite, ';'), 
+      seq($.expression, ';')
     ),
-
-    seqFsmStmt : $ => prec.left(seq(
-      'seq', 
-        $.fsmStmt, 
-        repeat($.fsmStmt), 
-      'endseq'
+    seqFsmStmt: $ => prec.left(seq(
+      'seq', $.fsmStmt, repeat($.fsmStmt), 'endseq'
     )),
-
-    parFsmStmt : $ => prec.left(seq(
-      'par', 
-        $.fsmStmt, 
-        repeat($.fsmStmt), 
-      'endpar'
+    parFsmStmt: $ => prec.left(seq(
+      'par', $.fsmStmt, repeat($.fsmStmt), 'endpar'
     )),
-
-    ifFsmStmt : $ => prec.left(seq(
+    ifFsmStmt: $ => prec.left(seq(
       'if', $.expression, $.fsmStmt,
       optional(seq('else', $.fsmStmt))
     )),
-
-    returnFsmStmt : $ => prec.left(seq('return', ';')),
-
-    whileFsmStmt : $ => prec.left(seq(
+    returnFsmStmt: $ => seq('return', ';'),
+    whileFsmStmt: $ => prec.left(seq(
       'while', '(', $.expression, ')', $.loopBodyFsmStmt
     )),
-
-    forFsmStmt : $ => prec.left(seq(
+    forFsmStmt: $ => prec.left(seq(
       'for', '(', $.fsmStmt, ';', $.expression, ';', $.fsmStmt, ')', 
         $.loopBodyFsmStmt
     )),
-
-    repeatFsmStmt : $ => prec.left(seq(
-      'repeat', '(', $.expression, ')', $.loopBodyFsmStmt
+    repeatFsmStmt: $ => prec.left(seq(
+      'repeat', '(', $.expression, ')', 
+        $.loopBodyFsmStmt
     )),
-
-    loopBodyFsmStmt : $ => choice(
+    loopBodyFsmStmt: $ => choice(
       $.fsmStmt, 
-      prec.left(seq('break', ';')),
-      prec.left(seq('continue', ';'))
+      seq('break', ';'),
+      seq('continue', ';')
     ),
 
-    // ==================================================================
-    // Integer, real literals
+    // ================================================================
+    // sec 13 Important primitives
+    // TODO: Not whole spec implemented here
 
-    intLiteral : $ => choice(
+    systemTaskStmt: $ => choice(
+      seq($.systemTaskCall, ';'),
+      // This should laos cover sec 13.8.4 Writing to a file, and other
+      seq($.displayTaskName, '(', optseq($.expression, 
+                                         repeatseq(',', $.expression)), ')', ';'),
+      // $fclose ( fileIdentifier ) ;
+      seq('$fclose', '(', $.identifier, ')'),
+    ),
+    displayTaskName: $ => choice('$display', '$displayb', '$displayo',
+      '$displayh', '$write', '$writeb', '$writeo', '$writeh',
+      '$format', '$fopen', '$fclose', '$fdisplay',
+      '$fdisplayb', '$fdisplayo', '$fdisplayh', '$fwrite',
+      '$fwriteb', '$fwriteo', '$fwriteh', '$swrite',
+      '$swriteb', '$swriteo', '$swriteh', '$sformat',
+      '$swriteAV', '$swritebAV', '$swriteoAV', '$swritehAV',
+      '$sformatAV', '$fgetc', '$fungetc', '$fflush',
+      '$finish', '$stop', '$dumpvars', '$dumpon', '$dumpoff',
+      '$time', '$stime', '$realtobits', '$bitstoreal',
+      '$test$plusargs'
+    ),
+    systemTaskCall: $ => choice(
+      seq('$format', '(', optseq($.expression, repeatseq(',', $.expression)), ')'),
+      // $fopen ( fileName [ , fileType ] )
+      seq('$fopen', '(', optseq($.identifier, repeatseq(',', $.identifier)), ')'),
+    ),
+    systemFunctionCall: $ => choice('$time', '$stime'),
+
+    // ================================================================
+    // sec 14 Guiding the compiler with attributes
+
+    attributeInstances: $ => prec.left(seq(
+      $.attributeInstance, repeat($.attributeInstance)
+    )),
+    attributeInstance: $ => prec.left(seq(
+      '(*', $.attrSpec, repeatseq(',', $.attrSpec), '*)'
+    )),
+    attrSpec: $ => seq($.attrName, optseq('=', $.expression)),
+    // Could be maybe more specific here, and list all the possible names
+    attrName: $ => choice($.identifier, $.Identifier), 
+    
+
+    // ============================================================
+    // TODO: sec 15 Embedding RTL in a BSV design
+    // externModuleImport ::= import "BVI" [ identifier = ] moduleProto
+    //                         { moduleStmt }
+    //                         { importBVIStmt }
+    //                        endmodule [ : identifier ]
+
+
+    // ============================================================
+    // sec 16 Embedding C in a BSV Design
+
+    externCImport: $ => seq(
+      'import', '"BDPI"', optseq($.identifier, '='), 'function', $.type, 
+      $.identifier, '(', optional($.CFuncArgs), ')', optional($.provisos), ';'
+    ),
+    CFuncArgs: $ => prec.left(seq(
+      $.CFuncArg, repeat(seq(',', $.CFuncArg))
+    )),
+    CFuncArg: $ => prec.left(seq(
+      $.type, optional($.identifier)
+    )),
+
+
+    // =============================================================
+    // sec 2 Lexical elements
+
+    intLiteral: $ => choice(
       "'0'", 
       "'1", 
       $.sizedIntLiteral, 
       $.unsizedIntLiteral
     ),
-    sizedIntLiteral : $ => prec.left(seq($.bitWidth, $.baseLiteral)),
-    unsizedIntLiteral : $ => choice(
-      prec.left(seq(optional($.sign), $.baseLiteral)),
-      prec.left(seq(optional($.sign), $.decNum))
+    sizedIntLiteral: $ => seq($.bitWidth, $.baseLiteral),
+    unsizedIntLiteral: $ => choice(
+      seq(optional($.sign), $.baseLiteral),
+      seq(optional($.sign), $.decNum)
     ),
-    baseLiteral : $ => choice(
-      prec.left(seq(choice("'d", "'D"), $.decDigitsUnderscore)),
-      prec.left(seq(choice("'h", "'H"), $.hexDigitsUnderscore)),
-      prec.left(seq(choice("'o", "'O"), $.octDigitsUnderscore)),
-      prec.left(seq(choice("'b", "'B"), $.binDigitsUnderscore)),
+    baseLiteral: $ => choice(
+      seq(choice("'d", "'D"), $.decDigitsUnderscore),
+      seq(choice("'h", "'H"), $.hexDigitsUnderscore),
+      seq(choice("'o", "'O"), $.octDigitsUnderscore),
+      seq(choice("'b", "'B"), $.binDigitsUnderscore),
     ),
+    decNum: $ => seq($.decDigits, optional($.decDigitsUnderscore)),
+    bitWidth: $ => $.decDigits,
+    sign: $ => choice('+', '-'),
+    // NOTE: The below rules require at least one digit, 
+    //       not at least 0 like in the spec.
+    decDigits: $ => /[0-9]+/,
+    decDigitsUnderscore: $ => /[0-9_]+/,
+    hexDigitsUnderscore: $ => /[0-9a-fA-F_]+/,
+    octDigitsUnderscore: $ => /[0-7_]+/,
+    binDigitsUnderscore: $ => /[0-1_]+/,
 
-    realLiteral : $ => choice(
-      prec.left(seq($.decNum, optional(seq('.', $.decDigitsUnderscore)),
-                    $.exp, optional($.sign), $.decDigitsUnderscore)),
-      prec.left(seq($.decNum, '.', $.decDigitsUnderscore))
+    stringLiteral: $ => /"([^"\\]|\\[\s\S])*"/,
+
+    realLiteral: $ => choice(
+      seq($.decNum, optseq('.', $.decDigitsUnderscore), $.exp, 
+                    optional($.sign), $.decDigitsUnderscore),
+      seq($.decNum, '.', $.decDigitsUnderscore)
     ),
+    exp: $ => choice('e', 'E'),
 
-    decNum : $ => prec.left(seq($.decDigits, optional($.decDigitsUnderscore))),
-    bitWidth : $ => $.decDigits,
-    sign : $ => choice('+', '-'),
-    exp : $ => choice('e', 'E'),
-    decDigits : $ => /[0-9]+/,
-    decDigitsUnderscore : $ => /[0-9_]+/,
-    hexDigitsUnderscore : $ => /[0-9a-fA-F_]+/,
-    octDigitsUnderscore : $ => /[0-7_]+/,
-    binDigitsUnderscore : $ => /[0-1_]+/,
+    identifier: $ => token(/[a-zA-Z_][a-zA-Z0-9_]*/), // Identifier starting with any case.
+    Identifier: $ => token(/[A-Z_][a-zA-Z0-9_]*/), // Identifier starting with upper case.
 
-    stringLiteral : $ => /"([^"\\]|\\[\s\S])*"/,
-
-    displayTaskName : $ => choice(
-                        '$display', '$displayb', '$displayo',
-                        '$displayh', '$write', '$writeb', '$writeo', '$writeh',
-                        '$format', '$fopen', '$fclose', '$fdisplay',
-                        '$fdisplayb', '$fdisplayo', '$fdisplayh', '$fwrite',
-                        '$fwriteb', '$fwriteo', '$fwriteh', '$swrite',
-                        '$swriteb', '$swriteo', '$swriteh', '$sformat',
-                        '$swriteAV', '$swritebAV', '$swriteoAV', '$swritehAV',
-                        '$sformatAV', '$fgetc', '$fungetc', '$fflush',
-                        '$finish', '$stop', '$dumpvars', '$dumpon', '$dumpoff',
-                        '$time', '$stime', '$realtobits', '$bitstoreal',
-                        '$test$plusargs'),
-
-    identifier : $ => token(/[a-zA-Z_][a-zA-Z0-9_]*/), // Identifier starting with any case.
-    Identifier : $ => token(/[A-Z_][a-zA-Z0-9_]*/), // Identifier starting with upper case.
-
-    comment : $ => token(seq('//', /.*/)),
+    // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment/36328890#36328890
+    // from: https://github.com/tree-sitter/tree-sitter-c/blob/master/grammar.js
+    comment: $ => token(choice(
+      seq('//', /.*/),
+      seq(
+        '/*',
+        /[^*]*\*+([^/*][^*]*\*+)*/,
+        '/',
+      ),
+    )),
 
   },
 
-  extras : $ => [/\s/, $.comment],
+  extras: $ => [/\s/, $.comment],
 
   // tree-sitter has automatic keyword extraction
   word: $ => $.identifier,
 
   conflicts: $ => [
-    [$.lValue, $.exprPrimary],
+    [$.typeNat, $.decNum],
     [$.typeNat, $.decNum],
     [$.bitWidth, $.decNum],
-    [$.Stmt, $.exprOrCondPattern],
-    [$.exprPrimary, $.Stmt],
-    [$.exprPrimary, $.fsmStmt],
-    [$.operatorExpr, $.exprOrCondPattern],
+    [$.lValue, $.exprPrimary],
+    [$.typeIde, $.exprPrimary],
+    [$.typeIde, $.methodDef],
     [$.exprOrCondPattern, $.ifFsmStmt],
     [$.condPredicate, $.condPredicate],
-    [$.moduleApp, $.exprPrimary],
     [$.condExpr, $.exprOrCondPattern],
-    [$.expression, $.exprPrimary, $.methodCall],
     [$.expression, $.functionCall],
-    [$.CasePatItem, $.exprOrCondPattern],
-    [$.typeIde, $.exprPrimary],
+    [$.operatorExpr, $.exprOrCondPattern],
+    [$.exprPrimary, $.fsmStmt],
+    [$.exprPrimary, $.moduleStmt],
+    [$.systemTaskStmt, $.displayTaskName],
+    [$.displayTaskName, $.systemTaskCall],
+    [$.displayTaskName, $.systemFunctionCall],
+    [$.unsizedIntLiteral, $.realLiteral],
+    [$.moduleStmt, $.expressionStmt],
+    [$.exprPrimary, $.actionStmt],
+    [$.exprPrimary, $.actionValueStmt],
+    [$.expressionStmt, $.actionStmt],
+    [$.expressionStmt, $.actionValueStmt],
+    [$.exprOrCondPattern, $.regWrite],
+    [$.lValue, $.arrayIndexes],
+
+    [$.exprOrCondPattern, $.exprOrCondPattern],
+    [$.expression, $.exprPrimary, $.methodCall],
     [$.typeIde, $.exprPrimary, $.moduleApp],
-    [$.typeIde, $.methodDef],
   ]
 });
