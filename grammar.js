@@ -223,8 +223,10 @@ module.exports = grammar({
     methodProtoFormals: $ => seq(
       $.methodProtoFormal, repeatseq(',', $.methodProtoFormal)
     ),
-    methodProtoFormal: $ => seq(
-      optional($.attributeInstances), $.type, $.identifier,
+    // NOTE: A function can be a method parameter.
+    methodProtoFormal: $ => choice(
+      seq(optional($.attributeInstances), $.type, $.identifier),
+      $.functionProto
     ),
 
     // NOTE: Spec seems to be missing "identifier".
@@ -498,7 +500,9 @@ module.exports = grammar({
       prec.left(seq('(', $.typeIde, repeatseq(',', $.typeIde), ')'))
     ),
     overloadedDef: $ => choice(
-      $.functionProto, 
+      // NOTE: We removed the semicolon from the functionProto rule
+      //       to allow functionProtos to appear in method/function arguments.
+      seq($.functionProto, ';'),
       $.varDecl,
       $.moduleProto, // NOTE: missing moduleProto?
     ),
@@ -566,26 +570,30 @@ module.exports = grammar({
 
     functionDef: $ => prec.left(seq(
       optional($.attributeInstances), 
-      $.functionProto,
+      // NOTE: We removed the semicolon from the functionProto rule
+      //       to allow functionProtos to appear in method/function arguments.
+      $.functionProto, ';',
         $.functionBody, 
       'endfunction', optseq(':', $.identifier)
     )),
-    functionProto: $ => choice(
-      seq('function', $.type, $.identifier,
-          // NOTE: Optional parens, contrary to spec?
-          optseq('(', optional($.functionFormals), ')'), optional($.provisos), ';'
-      ),
-      // Assign to expression (sec 9.8.1). 
-      // Could also add optional(expression) to above choice arm.
-      seq('function', $.type, $.identifier,
-          optseq('(', optional($.functionFormals), ')'), optional($.provisos), 
-          $.expression, ';'
-      ),
-    ),
+
+    // NOTE: Contrary to the spec, our rule does not have a semicolon, requiring
+    //       any super rules to handle them. This is to enable function prototypes
+    //       to appear in function/method arguments.
+    //       Also, we have optional parens, contrary to spec?
+    functionProto: $ => prec.left(seq(
+      'function', $.type, $.identifier,
+          optseq('(', optional($.functionFormals), ')'), 
+          optional($.provisos), optional($.expression)
+    )),
     functionFormals: $ => prec.left(seq(
       $.functionFormal, repeatseq(',', $.functionFormal)
     )),
-    functionFormal: $ => prec.left(seq($.type, $.identifier)),
+    functionFormal: $ => choice(
+      // NOTE: A function can take another function as parameter.
+      prec.left(seq($.type, $.identifier)),
+      $.functionProto
+    ),
 
     functionBody: $ => choice(
       $.actionBlock,
