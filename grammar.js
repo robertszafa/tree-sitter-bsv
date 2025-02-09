@@ -714,6 +714,7 @@ module.exports = grammar({
       $.varDo,
       $.varDeclDo,
       prec.left(seq($.functionCall, ';')),
+      prec.left(seq($.methodCall, ';')),
       $.systemTaskStmt,
       prec.left(seq('(', $.expression, ')', ';')),
       $.actionBlock,
@@ -738,6 +739,7 @@ module.exports = grammar({
       $.varDo,
       $.varDeclDo,
       prec.left(seq($.functionCall, ';')),
+      prec.left(seq($.methodCall, ';')),
       $.systemTaskStmt,
       prec.left(seq('(', $.expression, ')', ';')),
       $.returnStmt,
@@ -752,17 +754,27 @@ module.exports = grammar({
       ctxtWhile($, $.actionValueStmt),
     ),
 
-    functionCall: $ => prec.left(seq(
+    // NOTE: Make parenthesis madatory in function calls, otherwise
+    //       we run into infinite left recursion problems. The bsc implementation
+    //       does allow funcCall without parens. We will also accept such "lVal = funcCall;"
+    //       syntax, but our parser will produce an "identifier" node for "funcCall".
+    //       Tools upstream can then detect if the identifier refers to a function.
+    //
+    //       We also set a higher precedence for method calls to parse 
+    //       "identifierA.identifierB" as a methodCall.
+    functionCall: $ => prec.left(40, seq(
       $.exprPrimary, 
-      optseq('(', 
+      '(', 
         optseq($.expression, repeatseq(',', $.expression)),
-      ')')
+      ')'
     )),
-    methodCall: $ => prec.left(seq(
+    // We keep the parens as optional in method calls, as the GLR can recover from
+    // the left recursion due to the ".identifier" part that follows.
+    methodCall: $ => prec.left(50, seq(
       $.exprPrimary, '.', $.identifier,
       optseq('(', 
         optseq($.expression, repeatseq(',', $.expression)),
-      ')')
+      ')'),
     )),
 
     typeAssertion: $ => choice(
@@ -1031,17 +1043,14 @@ module.exports = grammar({
     [$.exprOrCondPattern, $.ifFsmStmt],
     [$.condPredicate, $.condPredicate],
     [$.condExpr, $.exprOrCondPattern],
-    [$.expression, $.functionCall],
     [$.operatorExpr, $.exprOrCondPattern],
     [$.exprPrimary, $.fsmStmt],
-    [$.exprPrimary, $.moduleStmt],
     [$.systemTaskStmt, $.displayTaskName],
     [$.displayTaskName, $.systemTaskCall],
     [$.displayTaskName, $.systemFunctionCall],
     [$.unsizedIntLiteral, $.realLiteral],
     [$.moduleStmt, $.expressionStmt],
     [$.exprPrimary, $.actionStmt],
-    [$.exprPrimary, $.actionValueStmt],
     [$.expressionStmt, $.actionStmt],
     [$.expressionStmt, $.actionValueStmt],
     [$.lValue, $.arrayIndexes],
@@ -1050,8 +1059,11 @@ module.exports = grammar({
     [$.typeIde, $.exprPrimary, $.moduleApp],
     [$.exprPrimary, $.structExpr],
 
-    [$.functionCall, $.taggedUnionExpr],
-    [$.exprPrimary, $.methodCall],
+    // [$.expression, $.functionCall],
+    // [$.exprPrimary, $.actionValueStmt],
+    // [$.exprPrimary, $.moduleStmt],
+    // [$.functionCall, $.taggedUnionExpr],
+    // [$.exprPrimary, $.methodCall],
 
 
   ]
