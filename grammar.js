@@ -155,8 +155,9 @@ module.exports = grammar({
       $.interfaceDecl, 
       $.typeDef, 
       $.varDecl, 
-      // NOTE: Not allowed at package scope:
-      // $.varAssign, 
+      // NOTE: Only the below "varAssign" rule choice is valid at packageStmt scope,
+      //       contrary to the spec.
+      prec.left(seq($.lValue, '=', $.expression, ';')),
       $.functionDef,
       $.typeclassDef,
       $.typeclassInstanceDef,
@@ -216,7 +217,7 @@ module.exports = grammar({
 
     methodProto: $ => seq(
       optional($.attributeInstances), 
-      'method', $.type, $.identifier, '(', optional($.methodProtoFormals), ')', ';'
+      'method', $.type, $.identifier, optseq('(', optional($.methodProtoFormals), ')'), ';'
     ),
 
     methodProtoFormals: $ => seq(
@@ -266,9 +267,11 @@ module.exports = grammar({
       $.rule, 
       $.varDo,
       $.varDeclDo,
-      $.functionCall,
+      // NOTE: The spec {module, function, action, actionValue, etc}Stmt rules 
+      //       are missing semicolons in some places.
+      prec.left(seq($.functionCall, ';')),
       $.systemTaskStmt,
-      seq('(', $.expression, ')'),
+      prec.left(seq('(', $.expression, ')', ';')),
       $.returnStmt,
       $.varDecl,
       $.varAssign,
@@ -504,7 +507,8 @@ module.exports = grammar({
     typeclassInstanceDef: $ => prec.left(seq(
       'instance', $.typeclassIde, '#', '(', $.type, repeatseq(',', $.type), ')',
         optional($.provisos), ';',
-          repeat(choice(seq($.varAssign, ';'), $.functionDef, $.moduleDef)),
+          // NOTE: Spec has an erronous semicolon after varAssign.
+          repeat(choice($.varAssign, $.functionDef, $.moduleDef)),
       'endinstance', optseq(':', $.typeclassIde)
     )),
 
@@ -516,7 +520,7 @@ module.exports = grammar({
     // sec 9 Variable declarations and statements
 
     varDecl: $ => choice(
-      prec.right(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
+      prec.left(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
       prec.left(seq('let', $.identifier, '=', $.expression, ';')),
     ),
 
@@ -533,7 +537,7 @@ module.exports = grammar({
       // if expression is the value returned by an actionvalue method:
       prec.left(seq('let', $.identifier, '<-', $.expression, ';')),
       // sec 11.4 pattern matching
-      seq('match', $.pattern, '=', $.expression, ';')
+      prec.left(seq('match', $.pattern, '=', $.expression, ';'))
     ),
     lValue: $ => choice(
       $.identifier, 
@@ -541,15 +545,18 @@ module.exports = grammar({
       prec.right(seq($.lValue, '[', $.expression, ']')),
       prec.right(seq($.lValue, '[', $.expression, ':', $.expression, ']'))
     ),
-    varDeclDo: $ => seq($.type, $.identifier, '<-', $.expression, ';'),
-    varDo: $ => seq($.identifier, '<-', $.expression, ';'),
+    varDeclDo: $ => prec.left(seq($.type, $.identifier, '<-', $.expression, ';')),
+    varDo: $ => prec.left(seq($.identifier, '<-', $.expression, ';')),
     
     regWrite: $ => choice(
-      seq($.lValue, '<=', $.expression),
-      seq('(', $.expression, ')', '<=', $.expression),
-      seq($.lValue, $.arrayIndexes, '<=', $.expression),
-      seq($.lValue, '[', $.expression, ':', $.expression, ']', '<=', $.expression),
-      seq($.lValue, '.', $.identifier, '<=', $.expression),
+      // NOTE: Spec is missing semicolon. regWrite could be without one, 
+      //       relying on super rules to add one, but this is not the approach
+      //       taken with other rules in the spec, e.g., varDo.
+      prec.left(seq($.lValue, '<=', $.expression, ';')),
+      prec.left(seq('(', $.expression, ')', '<=', $.expression, ';')),
+      prec.left(seq($.lValue, $.arrayIndexes, '<=', $.expression, ';')),
+      prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']', '<=', $.expression, ';')),
+      prec.left(seq($.lValue, '.', $.identifier, '<=', $.expression, ';')),
     ),
     arrayIndexes: $ => repeat1(seq('[', $.expression, ']')),
     
@@ -557,12 +564,12 @@ module.exports = grammar({
     // ================================================================
     // sec 9.8 Function definitions
 
-    functionDef: $ => seq(
+    functionDef: $ => prec.left(seq(
       optional($.attributeInstances), 
       $.functionProto,
         $.functionBody, 
       'endfunction', optseq(':', $.identifier)
-    ),
+    )),
     functionProto: $ => choice(
       seq('function', $.type, $.identifier,
           // NOTE: Optional parens, contrary to spec?
@@ -698,7 +705,7 @@ module.exports = grammar({
     )),
 
     actionBlock: $ => prec.left(seq(
-      'action', optional(seq(':', $.identifier)),
+      'action', optseq(':', $.identifier),
         repeat($.actionStmt), 
       'endaction', optseq(':', $.identifier)
     )),
@@ -706,9 +713,9 @@ module.exports = grammar({
       $.regWrite,
       $.varDo,
       $.varDeclDo,
-      $.functionCall,
+      prec.left(seq($.functionCall, ';')),
       $.systemTaskStmt,
-      seq('(', $.expression, ')'),
+      prec.left(seq('(', $.expression, ')', ';')),
       $.actionBlock,
       $.varDecl,
       $.varAssign,
@@ -722,7 +729,7 @@ module.exports = grammar({
     ),
 
     actionValueBlock: $ => prec.left(seq(
-      'actionvalue', optional(seq(':', $.identifier)),
+      'actionvalue', optseq(':', $.identifier),
         repeat($.actionValueStmt), 
       'endactionvalue', optseq(':', $.identifier)
     )),
@@ -730,9 +737,9 @@ module.exports = grammar({
       $.regWrite,
       $.varDo,
       $.varDeclDo,
-      $.functionCall,
+      prec.left(seq($.functionCall, ';')),
       $.systemTaskStmt,
-      seq('(', $.expression, ')'),
+      prec.left(seq('(', $.expression, ')', ';')),
       $.returnStmt,
       $.varDecl,
       $.varAssign,
@@ -745,19 +752,17 @@ module.exports = grammar({
       ctxtWhile($, $.actionValueStmt),
     ),
 
-    // NOTE: We make function and method call parens madatory, 
-    //       contrary to spec, but same as bsc compiler implementation.
     functionCall: $ => prec.left(seq(
       $.exprPrimary, 
-      '(',
+      optseq('(', 
         optseq($.expression, repeatseq(',', $.expression)),
-      ')'
+      ')')
     )),
     methodCall: $ => prec.left(seq(
       $.exprPrimary, '.', $.identifier,
-      '(',
+      optseq('(', 
         optseq($.expression, repeatseq(',', $.expression)),
-      ')',
+      ')')
     )),
 
     typeAssertion: $ => choice(
@@ -765,12 +770,13 @@ module.exports = grammar({
       seq($.type, '’', '(', $.expression, ')')
     ),
 
-    structExpr: $ => seq(
-      $.Identifier, '{', 
+    structExpr: $ => prec.left(seq(
+      // $.Identifier, '{', // TODO: Why does upper case not work here?
+      $.identifier, '{', 
         $.memberBind, repeatseq(',', $.memberBind), 
       '}'
-    ),
-    memberBind: $ => seq($.identifier, ':', $.expression),
+    )),
+    memberBind: $ => prec.left(seq($.identifier, ':', $.expression)),
 
     taggedUnionExpr: $ => choice(
       seq('tagged', $.Identifier, '{', $.memberBind, repeatseq(',', $.memberBind), '}'),
@@ -782,11 +788,6 @@ module.exports = grammar({
         repeat($.interfaceStmt), 
       'endinterface', optseq(':', $.Identifier)
     )),
-    interfaceStmt: $ => choice(
-      $.methodDef, 
-      $.subinterfaceDef, 
-      $.expressionStmt
-    ),
 
     rulesExpr: $ => prec.left(seq(
       optional($.attributeInstances), 
@@ -832,6 +833,7 @@ module.exports = grammar({
 
     caseExpr: $ => prec.left(seq(
       'case', '(', $.expression, ')', 'matches'.
+        // @ts-ignore
         repeat($.caseExprItem),
       'endcase'
     )),
@@ -857,8 +859,9 @@ module.exports = grammar({
       $.returnFsmStmt,
     ),
     exprFsmStmt: $ => choice(
-      seq($.regWrite, ';'), 
-      seq($.expression, ';')
+      // NOTE: No semicolon since we added it to the regWrite rule.
+      $.regWrite, 
+      prec.left(seq($.expression, ';'))
     ),
     seqFsmStmt: $ => prec.left(seq(
       'seq', $.fsmStmt, repeat($.fsmStmt), 'endseq'
@@ -893,12 +896,13 @@ module.exports = grammar({
     // TODO: Not whole spec implemented here
 
     systemTaskStmt: $ => choice(
-      seq($.systemTaskCall, ';'),
+      prec.left(seq($.systemTaskCall, ';')),
       // This should laos cover sec 13.8.4 Writing to a file, and other
-      seq($.displayTaskName, '(', optseq($.expression, 
-                                         repeatseq(',', $.expression)), ')', ';'),
+      prec.left(seq($.displayTaskName, optseq('(', optseq($.expression, 
+                                              repeatseq(',', $.expression)), ')'), ';'
+      )),
       // $fclose ( fileIdentifier ) ;
-      seq('$fclose', '(', $.identifier, ')'),
+      seq('$fclose', '(', $.identifier, ')', ';'),
     ),
     displayTaskName: $ => choice('$display', '$displayb', '$displayo',
       '$displayh', '$write', '$writeb', '$writeo', '$writeh',
@@ -1040,11 +1044,16 @@ module.exports = grammar({
     [$.exprPrimary, $.actionValueStmt],
     [$.expressionStmt, $.actionStmt],
     [$.expressionStmt, $.actionValueStmt],
-    [$.exprOrCondPattern, $.regWrite],
     [$.lValue, $.arrayIndexes],
 
     [$.exprOrCondPattern, $.exprOrCondPattern],
-    [$.expression, $.exprPrimary, $.methodCall],
     [$.typeIde, $.exprPrimary, $.moduleApp],
+    [$.exprPrimary, $.structExpr],
+
+    [$.functionCall, $.taggedUnionExpr],
+    [$.exprPrimary, $.methodCall],
+
+
   ]
+
 });
