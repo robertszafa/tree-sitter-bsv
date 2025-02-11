@@ -40,10 +40,10 @@ function ctxtIf($, ctxtStmt) {
 
 function ctxtCase($, ctxtStmt) {
   let CaseItem = () => prec.left(seq(
-      $.expression, repeat(seq(',', $.expression)), ':', ctxtStmt
+      $.expression, repeatseq(',', $.expression), ':', ctxtStmt
   ));
   let CasePatItem = () => prec.left(seq(
-      $.pattern, repeat(seq('&&&', $.expression)), ':', ctxtStmt
+      $.pattern, repeatseq('&&&', $.expression), ':', ctxtStmt
   ));
   let DefaultItem = () => prec.left(seq(
     'default', optional(':'), ctxtStmt
@@ -87,7 +87,7 @@ function ctxtFor($, ctxtStmt) {
     ));
     let forTest = () => $.expression;
     let forIncr = () => prec.left(seq(
-      varIncr(), repeat(seq(',', varIncr()))
+      varIncr(), repeatseq(',', varIncr())
     ));
 
   return prec.left(seq(
@@ -117,8 +117,8 @@ module.exports = grammar({
           repeat($.packageStmt),
         'endpackage', optseq(':', $.packageIde)
       ),
-      // NOTE: The actual bsc implementation allows files 
-      // without a package declaration.
+      // NOTE: Contrary to spec, the actual bsc implementation allows files 
+      //       without a package declaration.
       seq(
         repeat($.exportDecl),
         repeat($.importDecl),
@@ -526,6 +526,13 @@ module.exports = grammar({
     varDecl: $ => choice(
       prec.left(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
       prec.left(seq('let', $.identifier, '=', $.expression, ';')),
+      // NOTE: The spec is missing the below rule to allow declarations like:
+      //       Reg#(Maybe#(t)) data();
+      prec.left(seq($.type, $.identifier, 
+        '(', 
+          optseq($.expression, repeatseq(',', $.expression)),
+        ')', ';')
+      ),
     ),
 
     varInit: $ => prec.left(seq(
