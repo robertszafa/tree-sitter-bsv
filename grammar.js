@@ -7,6 +7,8 @@
 /// This grammar implements the BSV language as described in:
 /// - Bluespec System Verilog language Reference Guide: 
 ///     https://github.com/B-Lang-org/bsc/releases/latest/download/BSV_lang_ref_guide.pdf
+/// When we deviate from the spec, it is only to match the behaviour of the bsc compiler implemetation.
+/// These cases are explained in 'NOTE' comments.
 
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
@@ -407,7 +409,9 @@ module.exports = grammar({
     )),
     exprOrCondPattern: $ => choice(
       $.expression,
-      seq($.expression, 'matches', $.pattern)
+      prec.left(seq($.expression, 'matches', $.pattern)),
+      // NOTE: Contrary to spec, a pattern can be in parens
+      prec.left(seq($.expression, 'matches', '(', $.pattern, ')'))
     ),
 
     // ================================================================
@@ -806,8 +810,10 @@ module.exports = grammar({
     memberBind: $ => prec.left(seq($.identifier, ':', $.expression)),
 
     taggedUnionExpr: $ => choice(
-      seq('tagged', $.Identifier, '{', $.memberBind, repeatseq(',', $.memberBind), '}'),
-      prec.left(seq('tagged', $.Identifier, $.exprPrimary))
+      // NOTE: Contrary to spec, but to match the bsc implementation, we make curly brackets optional if no binds.
+      prec.left(seq('tagged', $.Identifier, '{', $.memberBind, repeatseq(',', $.memberBind), '}')),
+      prec.left(seq('tagged', $.Identifier, $.exprPrimary)),
+      prec.left(seq('tagged', $.Identifier)),
     ),
 
     interfaceExpr: $ => prec.left(seq(
