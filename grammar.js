@@ -216,9 +216,10 @@ module.exports = grammar({
     ),
     typeFormal: $ => seq(
       // NOTE 1: The spec has a type for "typeFormal::= [ numeric | string ] type typeIde"
-      //         The "type" string should be inside the optional choice.
+      //         The "type" string should be optional: we can have "numeric type typePrimary"
+      //         or "type typePrimary".
       // NOTE 2: The spec wrongly does not allow nested types, do s/typeIde/typePrimary
-      optional(choice('numeric', 'string', 'type')), $.typePrimary
+      optional(choice('numeric', 'string')), optional('type'), $.typePrimary
     ),
 
     interfaceMemberDecl: $ => choice($.methodProto, $.subinterfaceDecl),

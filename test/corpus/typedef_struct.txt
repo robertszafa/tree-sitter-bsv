@@ -1,0 +1,129 @@
+====================
+typedef struct axi4
+====================
+
+typedef struct {
+   Vector #(n, Bit #(8))  tDATA;
+   Bit #(n)               tSTRB;
+   Bit #(n)               tKEEP;
+   Bool                   tLAST;
+   Bit #(i)               tID;
+   Bit #(d)               tDEST;
+   Bit #(u)               tUSER;
+   } AXI4_Stream_Payload #(numeric type n,    // width of TDATA (# of bytes)
+			   numeric type i,    // width of TID (# of bits)
+			   numeric type d,    // width of TDEST (# of bits)
+			   numeric type u)    // width of TUSER (# of bits)
+   deriving (Bits, FShow);
+
+
+---
+
+(sourceFile
+ (packageStmt
+  (typeDef
+   (typedefStruct
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))
+         (type
+          (typePrimary
+           (typeNat
+            (decDigits))))))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))
+     (identifier))
+    (typeDefType
+     (typeIde
+      (identifier))
+     (typeFormals
+      (typeFormal
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (comment)
+      (typeFormal
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (comment)
+      (typeFormal
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (comment)
+      (typeFormal
+       (typePrimary
+        (typeIde
+         (identifier))))))
+(comment)
+  (derives
+   (typeclassIde
+    (Identifier))
+   (typeclassIde
+    (Identifier)))))))
+
