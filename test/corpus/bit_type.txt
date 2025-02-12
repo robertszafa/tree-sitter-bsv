@@ -1,0 +1,19 @@
+==================
+bit type
+==================
+
+bit [4:0] Register;
+
+---
+
+    (sourceFile
+      (packageStmt
+        (varDecl
+          (type
+            (typePrimary
+              (typeNat
+                (decDigits))
+              (typeNat
+                (decDigits))))
+          (varInit
+            (identifier)))))

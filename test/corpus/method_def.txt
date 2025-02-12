@@ -1,0 +1,45 @@
+==================
+method definition
+==================
+
+(* synthesize *)
+module mkDeepThought (DeepThought_IFC);
+
+   method ActionValue#(int) getAnswer;
+      return 42;
+   endmethod
+endmodule
+
+---
+
+(sourceFile
+      (packageStmt
+        (moduleDef
+          (attributeInstances
+            (attributeInstance
+              (attrSpec
+                (attrName
+                  (identifier)))))
+          (moduleProto
+            (identifier)
+            (moduleFormalArgs
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))))))
+          (moduleStmt
+            (methodDef
+              (typeFormals
+                (typeFormal
+                  (typeIde
+                    (identifier))))
+              (identifier)
+              (actionValueStmt
+                (returnStmt
+                  (expression
+                    (exprPrimary
+                      (intLiteral
+                        (unsizedIntLiteral
+                          (decNum
+                            (decDigits)))))))))))))
+
