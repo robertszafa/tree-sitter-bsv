@@ -44,14 +44,16 @@ function ctxtCase($, ctxtStmt) {
   let CaseItem = () => prec.left(seq(
       $.expression, repeatseq(',', $.expression), ':', ctxtStmt
   ));
+
   let CasePatItem = () => prec.left(seq(
       $.pattern, repeatseq('&&&', $.expression), ':', ctxtStmt
   ));
+
   let DefaultItem = () => prec.left(seq(
     'default', optional(':'), ctxtStmt
   ));
 
-  return choice(
+  return field("case_expr", choice(
     prec.left(seq(
       'case', '(', $.expression, ')',
         repeat(CaseItem()),
@@ -64,7 +66,7 @@ function ctxtCase($, ctxtStmt) {
         optional(DefaultItem()),
       'endcase'
     ))
-  );
+  ));
 }
 
     // ----------------
@@ -87,15 +89,16 @@ function ctxtFor($, ctxtStmt) {
     let varIncr = () => prec.left(seq(
       $.identifier, '=', $.expression
     ));
-    let forTest = () => $.expression;
     let forIncr = () => prec.left(seq(
       varIncr(), repeatseq(',', varIncr())
     ));
 
-  return prec.left(seq(
+    let forTest = () => $.expression;
+
+  return field("forStmt", prec.left(seq(
     'for', '(', forInit(), ';', forTest(), ';', forIncr(), ')',
       ctxtStmt
-  ));
+  )));
 }
 
 function ctxtWhile($, ctxtStmt) {
@@ -186,7 +189,7 @@ module.exports = grammar({
     typePrimary: $ => choice(
       seq($.typeIde, optseq('#', '(', $.type, repeatseq(',', $.type), ')')),
       $.typeNat,
-      seq('bit', optseq($.typeNat, ':', $.typeNat))
+      seq('bit', '[', $.typeNat, ':', $.typeNat, ']')
     ),
 
     // NOTE: To quote from BSV reference manual: Data types in BSV are case 
@@ -212,7 +215,9 @@ module.exports = grammar({
       '#', '(', $.typeFormal, repeatseq(',', $.typeFormal), ')'
     ),
     typeFormal: $ => seq(
-      optional(choice('numeric', 'string')), 'type', $.typeIde
+      // NOTE: The spec has a type for "typeFormal::= [ numeric | string ] type typeIde"
+      //       The "type" string should be inside the optional choice.
+      optional(choice('numeric', 'string', 'type')), $.typeIde
     ),
 
     interfaceMemberDecl: $ => choice($.methodProto, $.subinterfaceDecl),
@@ -741,6 +746,8 @@ module.exports = grammar({
       $.varAssign,
       $.functionDef,
       $.methodDef,
+      // NOTE: The bsc implementation provides a "noAction" statement. 
+      field('noAction', 'noAction'),
       ctxtBeginEndStmt($, $.actionStmt),
       ctxtIf($, $.actionStmt),
       ctxtCase($, $.actionStmt),
@@ -850,9 +857,15 @@ module.exports = grammar({
       $.stringLiteral,
       $.Identifier
     ),
-    taggedUnionPattern: $ => prec.left(seq(
-      'tagged', $.Identifier, optional($.pattern)
-    )),
+    taggedUnionPattern: $ => choice(
+      prec.left(seq(
+        'tagged', $.Identifier, optional($.pattern)
+      )),
+      // NOTE: The spec is missing the case of a struct union member.
+      prec.left(seq(
+        'tagged', $.structPattern
+      )),
+    ),
     structPattern: $ => prec.left(seq(
       $.Identifier, '{', $.identifier, ':', $.pattern,
                          repeatseq(',', $.identifier, ':', $.pattern), '}'
