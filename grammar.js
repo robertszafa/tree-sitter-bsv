@@ -215,9 +215,10 @@ module.exports = grammar({
       '#', '(', $.typeFormal, repeatseq(',', $.typeFormal), ')'
     ),
     typeFormal: $ => seq(
-      // NOTE: The spec has a type for "typeFormal::= [ numeric | string ] type typeIde"
-      //       The "type" string should be inside the optional choice.
-      optional(choice('numeric', 'string', 'type')), $.typeIde
+      // NOTE 1: The spec has a type for "typeFormal::= [ numeric | string ] type typeIde"
+      //         The "type" string should be inside the optional choice.
+      // NOTE 2: The spec wrongly does not allow nested types, do s/typeIde/typePrimary
+      optional(choice('numeric', 'string', 'type')), $.typePrimary
     ),
 
     interfaceMemberDecl: $ => choice($.methodProto, $.subinterfaceDecl),
@@ -415,8 +416,9 @@ module.exports = grammar({
     exprOrCondPattern: $ => choice(
       $.expression,
       prec.left(seq($.expression, 'matches', $.pattern)),
-      // NOTE: Contrary to spec, a pattern can be in parens
-      prec.left(seq($.expression, 'matches', '(', $.pattern, ')'))
+      // NOTE: Contrary to spec, a pattern and an expression can be in parens.
+      prec.left(seq($.expression, 'matches', '(', $.pattern, ')')),
+      prec.left(seq('(', $.expression, ')')),
     ),
 
     // ================================================================
@@ -1092,13 +1094,7 @@ module.exports = grammar({
     [$.exprOrCondPattern, $.exprOrCondPattern],
     [$.typeIde, $.exprPrimary, $.moduleApp],
     [$.exprPrimary, $.structExpr],
-
-    // [$.expression, $.functionCall],
-    // [$.exprPrimary, $.actionValueStmt],
-    // [$.exprPrimary, $.moduleStmt],
-    // [$.functionCall, $.taggedUnionExpr],
-    // [$.exprPrimary, $.methodCall],
-
+    [$.exprOrCondPattern, $.exprPrimary],
 
   ]
 

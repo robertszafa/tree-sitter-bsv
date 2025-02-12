@@ -1,0 +1,79 @@
+==================
+method condition
+==================
+
+module mkBubblesort ();
+   method ActionValue#(Int#(32)) get () if ((rg_j != 0) && (rg_pc == 6));
+      shift (?);
+      return x0;
+   endmethod
+endmodule: mkBubblesort
+
+
+
+---
+
+(sourceFile
+ (packageStmt
+  (moduleDef
+   (moduleProto
+    (identifier))
+   (moduleStmt
+    (methodDef
+     (typeFormals
+      (typeFormal
+       (typePrimary
+        (typeIde
+         (identifier))
+        (type
+         (typePrimary
+          (typeNat
+           (decDigits)))))))
+     (identifier)
+     (implicitCond
+      (condPredicate
+       (exprOrCondPattern
+        (expression
+         (operatorExpr
+          (expression
+           (exprPrimary
+            (expression
+             (operatorExpr
+              (expression
+               (exprPrimary
+                (identifier)))
+              (binop)
+              (expression
+               (exprPrimary
+                (intLiteral
+                 (unsizedIntLiteral
+                  (decNum
+                   (decDigits))))))))))
+          (binop)
+          (expression
+           (exprPrimary
+            (expression
+             (operatorExpr
+              (expression
+               (exprPrimary
+                (identifier)))
+              (binop)
+              (expression
+               (exprPrimary
+                (intLiteral
+                 (unsizedIntLiteral
+                  (decNum
+                   (decDigits)))))))))))))))
+  (actionValueStmt
+   (functionCall
+    (exprPrimary
+     (identifier))
+    (expression
+     (exprPrimary))))
+  (actionValueStmt
+   (returnStmt
+    (expression
+     (exprPrimary
+      (identifier)))))))
+(identifier))))
+

@@ -31,8 +31,9 @@ endmodule
             (methodDef
               (typeFormals
                 (typeFormal
-                  (typeIde
-                    (identifier))))
+                  (typePrimary
+                    (typeIde
+                      (identifier)))))
               (identifier)
               (actionValueStmt
                 (returnStmt
