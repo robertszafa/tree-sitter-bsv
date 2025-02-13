@@ -898,7 +898,10 @@ module.exports = grammar({
     // sec 12 Finite State Machines
 
     fsmStmt: $ => choice(
-      $.exprFsmStmt,
+      // NOTE: We did s/exprFsmStmt/actionStmt. The exprFsmStmt rule 
+      //       has an choice of "expression ;", which, for example, 
+      //       would require to put a semicolon after an action block.
+      $.actionStmt,
       $.seqFsmStmt,
       $.parFsmStmt,
       $.ifFsmStmt,
@@ -907,11 +910,7 @@ module.exports = grammar({
       $.forFsmStmt,
       $.returnFsmStmt,
     ),
-    exprFsmStmt: $ => choice(
-      // NOTE: No semicolon since we added it to the regWrite rule.
-      $.regWrite, 
-      prec.left(seq($.expression, ';'))
-    ),
+
     seqFsmStmt: $ => prec.left(seq(
       'seq', $.fsmStmt, repeat($.fsmStmt), 'endseq'
     )),
@@ -1096,6 +1095,9 @@ module.exports = grammar({
     [$.typeIde, $.exprPrimary, $.moduleApp],
     [$.exprPrimary, $.structExpr],
     [$.exprOrCondPattern, $.exprPrimary],
+    [$.lValue, $.actionStmt],
+    [$.actionStmt, $.fsmStmt],
+
 
   ]
 
