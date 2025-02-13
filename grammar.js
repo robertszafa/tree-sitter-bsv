@@ -217,9 +217,9 @@ module.exports = grammar({
     typeFormal: $ => seq(
       // NOTE 1: The spec has a type for "typeFormal::= [ numeric | string ] type typeIde"
       //         The "type" string should be optional: we can have "numeric type typePrimary"
-      //         or "type typePrimary".
+      //         or "type typePrimary". Also allow "parameter".
       // NOTE 2: The spec wrongly does not allow nested types, do s/typeIde/typePrimary
-      optional(choice('numeric', 'string')), optional('type'), $.typePrimary
+      optional(choice('numeric', 'string', 'parameter')), optional('type'), $.typePrimary
     ),
 
     interfaceMemberDecl: $ => choice($.methodProto, $.subinterfaceDecl),
@@ -1055,8 +1055,9 @@ module.exports = grammar({
     ),
     exp: $ => choice('e', 'E'),
 
-    identifier: $ => token(/[a-zA-Z_][a-zA-Z0-9_]*/), // Identifier starting with any case.
-    Identifier: $ => token(/[A-Z_][a-zA-Z0-9_]*/), // Identifier starting with upper case.
+    // \p{L} matches any character in the unicode category.
+    identifier: $ => token(/[a-zA-Z_\p{L}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with any case.
+    Identifier: $ => token(/[A-Z_\p{L}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with upper case.
 
     // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment/36328890#36328890
     // from: https://github.com/tree-sitter/tree-sitter-c/blob/master/grammar.js

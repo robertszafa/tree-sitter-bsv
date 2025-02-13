@@ -1,0 +1,16 @@
+====================
+unicode
+====================
+
+package 風呂敷;
+
+endpackage: 風呂敷
+
+---
+
+(sourceFile
+ (packageIde
+  (identifier))
+ (packageIde
+  (identifier)))
+
