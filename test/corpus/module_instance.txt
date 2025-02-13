@@ -1,0 +1,65 @@
+====================
+module instance
+====================
+
+module mkMergesort ();
+   Vector #(N_Config_Regs, Reg #(Data)) vrg_configs;
+   vrg_configs [run]    <- mkReg (0);    // 0:stop, 1:run
+   vrg_configs [addr_A] <- mkRegU;
+endmodule
+
+---
+
+(sourceFile
+ (packageStmt
+  (moduleDef
+   (moduleProto
+    (identifier))
+   (moduleStmt
+    (varDecl
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))
+         (type
+          (typePrimary
+           (typeIde
+            (identifier))))))))
+     (varInit
+      (identifier))))
+   (moduleStmt
+    (moduleInst
+     (lValue
+      (lValue
+       (identifier))
+      (expression
+       (exprPrimary
+        (identifier))))
+     (moduleApp
+      (identifier)
+      (moduleActualParamArg
+       (expression
+        (exprPrimary
+         (intLiteral
+          (unsizedIntLiteral
+           (decNum
+            (decDigits))))))))))
+(comment)
+  (moduleStmt
+   (moduleInst
+    (lValue
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier))))
+    (moduleApp
+     (identifier)))))))

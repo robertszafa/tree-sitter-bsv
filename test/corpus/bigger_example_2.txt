@@ -1046,7 +1046,7 @@ endpackage
            (identifier))))))))
 (comment)
   (moduleStmt
-   (moduleInst
+   (varDeclDo
     (type
      (typePrimary
       (typeIde
@@ -1072,16 +1072,17 @@ endpackage
           (typeIde
            (identifier))))))))
 (identifier)
-  (moduleApp
-   (identifier)
-   (moduleActualParamArg
-    (expression
+  (expression
+   (exprPrimary
+    (functionCall
      (exprPrimary
-      (identifier))))
-   (moduleActualParamArg
-    (expression
-     (exprPrimary
-      (identifier)))))))
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier)))
+     (expression
+      (exprPrimary
+       (identifier))))))))
   (comment)
 (comment)
   (moduleStmt
@@ -1400,7 +1401,7 @@ endpackage
            (identifier))))))))
 (comment)
   (moduleStmt
-   (moduleInst
+   (varDeclDo
     (type
      (typePrimary
       (typeIde
@@ -1426,16 +1427,17 @@ endpackage
           (typeIde
            (identifier))))))))
 (identifier)
-  (moduleApp
-   (identifier)
-   (moduleActualParamArg
-    (expression
+  (expression
+   (exprPrimary
+    (functionCall
      (exprPrimary
-      (identifier))))
-   (moduleActualParamArg
-    (expression
-     (exprPrimary
-      (identifier)))))))
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier)))
+     (expression
+      (exprPrimary
+       (identifier))))))))
   (comment)
 (comment)
   (moduleStmt
@@ -1623,4 +1625,3 @@ endpackage
         (exprPrimary
          (identifier))))))))))
 (comment))
-

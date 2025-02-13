@@ -67,57 +67,59 @@ endmodule
    (moduleProto
     (identifier))
    (moduleStmt
-    (moduleInst
+    (varDeclDo
      (type
       (typePrimary
        (typeIde
         (identifier))))
      (identifier)
-     (moduleApp
-      (identifier)
-      (moduleActualParamArg
-       (expression
+     (expression
+      (exprPrimary
+       (functionCall
         (exprPrimary
-         (seqFsmStmt
-          (fsmStmt
-           (parFsmStmt
-            (fsmStmt
-             (seqFsmStmt
-              (fsmStmt
-               (actionStmt
-                (actionBlock
-                 (comment)
-                 (actionStmt
-                  (varDecl
-                   (type
-                    (typePrimary
-                     (typeIde
-                      (identifier))))
-                   (varInit
-                    (identifier)
-                    (expression
-                     (exprPrimary
-                      (structExpr
-                       (identifier)
-                       (memberBind
+         (identifier))
+        (expression
+         (exprPrimary
+          (seqFsmStmt
+           (fsmStmt
+            (parFsmStmt
+             (fsmStmt
+              (seqFsmStmt
+               (fsmStmt
+                (actionStmt
+                 (actionBlock
+                  (comment)
+                  (actionStmt
+                   (varDecl
+                    (type
+                     (typePrimary
+                      (typeIde
+                       (identifier))))
+                    (varInit
+                     (identifier)
+                     (expression
+                      (exprPrimary
+                       (structExpr
                         (identifier)
-                        (expression
-                         (exprPrimary
-                          (identifier))))
-                       (memberBind
-                        (identifier)
-                        (expression
-                         (operatorExpr
-                          (expression
-                           (exprPrimary
-                            (identifier)))
-                          (binop)
-                          (expression
-                           (exprPrimary
-                            (intLiteral
-                             (unsizedIntLiteral
-                              (baseLiteral
-                               (hexDigitsUnderscore)))))))))
+                        (memberBind
+                         (identifier)
+                         (expression
+                          (exprPrimary
+                           (identifier))))
+                        (memberBind
+                         (identifier)
+                         (expression
+                          (operatorExpr
+                           (expression
+                            (exprPrimary
+                             (identifier)))
+                           (binop)
+                           (expression
+                            (exprPrimary
+                             (intLiteral
+                              (unsizedIntLiteral
+                               (baseLiteral
+                                (hexDigitsUnderscore)))))))))
   (memberBind
    (identifier)
    (expression
@@ -510,6 +512,4 @@ endmodule
        (stringLiteral)))
      (expression
       (exprPrimary
-       (identifier))))))))))))))))))))))))
-
-
+       (identifier)))))))))))))))))))))))))

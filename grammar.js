@@ -300,15 +300,20 @@ module.exports = grammar({
     // sec 5.4 Module and interface instantiation
 
     // sec 5.4.1 Short form instantiation
-    moduleInst: $ => seq(
+    moduleInst: $ => prec.left(seq(
       optional($.attributeInstances),
-      $.type, $.identifier, '<-', $.moduleApp, ';'
-    ),
-    moduleApp: $ => seq(
-      $.identifier, '(', 
+      // NOTE: Contrary to spec, we make the type optional, since
+      //       we could be assigning to an already declared Vector for example.
+      //       We also do s/identifier/lValue to allow asigning to array indexes,
+      //       or to allow things like concurrent registers.
+      optional($.type), $.lValue, '<-', $.moduleApp, ';'
+    )),
+    moduleApp: $ => prec.left(seq(
+      // NOTE: Parens are optional in the bsc implementation.
+      $.identifier, optseq('(', 
         optseq($.moduleActualParamArg, repeatseq(',', $.moduleActualParamArg)),
-      ')'
-    ),
+      ')')
+    )),
     moduleActualParamArg: $ => choice(
       $.expression,
       seq('clocked_by', $.expression),
@@ -1092,12 +1097,13 @@ module.exports = grammar({
     [$.lValue, $.arrayIndexes],
 
     [$.exprOrCondPattern, $.exprOrCondPattern],
-    [$.typeIde, $.exprPrimary, $.moduleApp],
     [$.exprPrimary, $.structExpr],
     [$.exprOrCondPattern, $.exprPrimary],
     [$.lValue, $.actionStmt],
     [$.actionStmt, $.fsmStmt],
-
+    [$.lValue, $.varDo],
+    [$.varInit, $.lValue],
+    [$.lValue, $.varDeclDo],
 
   ]
 
