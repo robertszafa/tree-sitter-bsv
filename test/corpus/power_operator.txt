@@ -1,0 +1,155 @@
+====================
+power operator
+====================
+
+
+module mkShifter (Shifter_IFC #(n));
+   for (Integer j = 1; j < j_max; j = j + 1)
+      rule rl_j (rg_j == fromInteger (j));
+        rg_x <= ((rg_y[j] == 0) ? rg_x : (rg_x << (2**j)));
+        rg_j <= rg_j + 1;
+      endrule
+
+endmodule
+
+
+---
+
+(sourceFile
+ (packageStmt
+  (moduleDef
+   (moduleProto
+    (identifier)
+    (moduleFormalArgs
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))))
+   (moduleStmt
+    (type
+     (typePrimary
+      (typeIde
+       (identifier))))
+    (identifier)
+    (expression
+     (exprPrimary
+      (intLiteral
+       (unsizedIntLiteral
+        (decNum
+         (decDigits))))))
+    (expression
+     (operatorExpr
+      (expression
+       (exprPrimary
+        (identifier)))
+      (binop)
+      (expression
+       (exprPrimary
+        (identifier)))))
+(identifier)
+  (expression
+   (operatorExpr
+    (expression
+     (exprPrimary
+      (identifier)))
+    (binop)
+    (expression
+     (exprPrimary
+      (intLiteral
+       (unsizedIntLiteral
+        (decNum
+         (decDigits))))))))
+  (moduleStmt
+   (rule
+    (identifier)
+    (ruleCond
+     (condPredicate
+      (exprOrCondPattern
+       (expression
+        (operatorExpr
+         (expression
+          (exprPrimary
+           (identifier)))
+         (binop)
+         (expression
+          (exprPrimary
+           (functionCall
+            (exprPrimary
+             (identifier))
+            (expression
+             (exprPrimary
+              (identifier)))))))))))
+    (actionStmt
+     (regWrite
+      (lValue
+       (identifier))
+      (expression
+       (exprPrimary
+        (expression
+         (condExpr
+          (condPredicate
+           (exprOrCondPattern
+            (expression
+             (exprPrimary
+              (expression
+               (operatorExpr
+                (expression
+                 (exprPrimary
+                  (bitSelect
+                   (exprPrimary
+                    (identifier))
+                   (expression
+                    (exprPrimary
+                     (identifier))))))
+                (binop)
+                (expression
+                 (exprPrimary
+                  (intLiteral
+                   (unsizedIntLiteral
+                    (decNum
+                     (decDigits))))))))))))
+          (expression
+           (exprPrimary
+            (identifier)))
+          (expression
+           (exprPrimary
+            (expression
+             (operatorExpr
+              (expression
+               (exprPrimary
+                (identifier)))
+              (binop)
+              (expression
+               (exprPrimary
+                (expression
+                 (operatorExpr
+                  (expression
+                   (exprPrimary
+                    (intLiteral
+                     (unsizedIntLiteral
+                      (decNum
+                       (decDigits))))))
+                  (binop)
+                  (expression
+                   (exprPrimary
+                    (identifier)))))))))))))))))
+  (actionStmt
+   (regWrite
+    (lValue
+     (identifier))
+    (expression
+     (operatorExpr
+      (expression
+       (exprPrimary
+        (identifier)))
+      (binop)
+      (expression
+       (exprPrimary
+        (intLiteral
+         (unsizedIntLiteral
+          (decNum
+           (decDigits))))))))))))))))
