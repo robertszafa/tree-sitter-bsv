@@ -1,0 +1,336 @@
+====================
+nested case expr
+====================
+
+typedef union tagged {
+   struct {
+      Bool first;
+      Bool second;
+   } OneTwo;
+   void Three;
+   Tuple2#(Bool,Bool) Four;
+} TaggedUnionStruct;
+
+function Bool foo(TaggedUnionStruct obj);
+  Bool ans1, ans2, ans3;
+  case (obj) matches
+    tagged OneTwo { first: True, second: True }: ans1 = True;
+    tagged OneTwo { first: True, second: .second }: ans1 = True;
+    tagged OneTwo { first: .first, second: .second }: ans1 = False;
+    tagged Three: ans1 = False;
+    tagged Four { True, .* }: ans1 = True;
+    tagged Four { .a, .b }: ans1 = a && b;
+  endcase
+  case (obj) matches
+    tagged OneTwo { first: .first, second:.second }: ans2 = !first;
+    tagged Three: ans2 = False;
+    tagged Four .*: ans2 = True;
+  endcase
+  // Test without field names
+  case (obj) matches
+    tagged OneTwo { }: ans3 = True;
+    tagged Three: ans3 = False;
+    tagged Four { True, True }: ans3 = True;
+    tagged Four { .*, .* }: ans3 = False;
+  endcase
+  foo = ans1 && ans2 && ans3;
+endfunction: foo
+
+
+---
+
+(sourceFile
+ (packageStmt
+  (typeDef
+   (typedefTaggedUnion
+    (unionMember
+     (subStruct
+      (structMember
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (identifier))
+      (structMember
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (identifier)))
+     (Identifier))
+    (unionMember
+     (Identifier))
+    (unionMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))))
+     (Identifier))
+    (typeDefType
+     (typeIde
+      (identifier))))))
+  (packageStmt
+   (functionDef
+    (functionProto
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))))
+     (identifier)
+     (functionFormals
+      (functionFormal
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (identifier))))
+    (functionBody
+     (functionBodyStmt
+      (varDecl
+       (type
+        (typePrimary
+         (typeIde
+          (identifier))))
+       (varInit
+        (identifier))
+       (varInit
+        (identifier))
+       (varInit
+        (identifier))))
+     (functionBodyStmt
+      (expression
+       (exprPrimary
+        (identifier)))
+      (pattern
+       (taggedUnionPattern
+        (structPattern
+         (Identifier)
+         (identifier)
+         (pattern
+          (constantPattern
+           (boolLiteral)))
+         (identifier)
+         (pattern
+          (constantPattern
+           (boolLiteral))))))
+      (functionBodyStmt
+       (varAssign
+        (lValue
+         (identifier))
+        (expression
+         (exprPrimary
+          (identifier)))))
+      (pattern
+       (taggedUnionPattern
+        (structPattern
+         (Identifier)
+         (identifier)
+         (pattern
+          (constantPattern
+           (boolLiteral)))
+         (identifier)
+         (pattern
+          (identifier)))))
+      (functionBodyStmt
+       (varAssign
+        (lValue
+         (identifier))
+        (expression
+         (exprPrimary
+          (identifier)))))
+      (pattern
+       (taggedUnionPattern
+        (structPattern
+         (Identifier)
+         (identifier)
+         (pattern
+          (identifier))
+         (identifier)
+         (pattern
+          (identifier)))))
+      (functionBodyStmt
+       (varAssign
+        (lValue
+         (identifier))
+        (expression
+         (exprPrimary
+          (identifier)))))
+      (pattern
+       (taggedUnionPattern
+        (Identifier)))
+      (functionBodyStmt
+       (varAssign
+        (lValue
+         (identifier))
+        (expression
+         (exprPrimary
+          (identifier)))))
+      (pattern
+       (taggedUnionPattern
+        (Identifier)
+        (pattern
+         (tuplePattern
+          (pattern
+           (constantPattern
+            (boolLiteral)))
+          (pattern)))))
+      (functionBodyStmt
+       (varAssign
+        (lValue
+         (identifier))
+        (expression
+         (exprPrimary
+          (identifier)))))
+      (pattern
+       (taggedUnionPattern
+        (Identifier)
+        (pattern
+         (tuplePattern
+          (pattern
+           (identifier))
+          (pattern
+           (identifier))))))
+      (functionBodyStmt
+       (varAssign
+        (lValue
+         (identifier))
+        (expression
+         (operatorExpr
+          (expression
+           (exprPrimary
+            (identifier)))
+          (binop)
+          (expression
+           (exprPrimary
+            (identifier))))))))
+  (functionBodyStmt
+   (expression
+    (exprPrimary
+     (identifier)))
+   (pattern
+    (taggedUnionPattern
+     (structPattern
+      (Identifier)
+      (identifier)
+      (pattern
+       (identifier))
+      (identifier)
+      (pattern
+       (identifier)))))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (operatorExpr
+       (unop)
+       (expression
+        (exprPrimary
+         (identifier)))))))
+   (pattern
+    (taggedUnionPattern
+     (Identifier)))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier)))))
+   (pattern
+    (taggedUnionPattern
+     (Identifier)
+     (pattern)))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier))))))
+(comment)
+  (functionBodyStmt
+   (expression
+    (exprPrimary
+     (identifier)))
+   (pattern
+    (taggedUnionPattern
+     (structPattern
+      (Identifier))))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier)))))
+   (pattern
+    (taggedUnionPattern
+     (Identifier)))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier)))))
+   (pattern
+    (taggedUnionPattern
+     (Identifier)
+     (pattern
+      (tuplePattern
+       (pattern
+        (constantPattern
+         (boolLiteral)))
+       (pattern
+        (constantPattern
+         (boolLiteral)))))))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier)))))
+   (pattern
+    (taggedUnionPattern
+     (Identifier)
+     (pattern
+      (tuplePattern
+       (pattern)
+       (pattern)))))
+   (functionBodyStmt
+    (varAssign
+     (lValue
+      (identifier))
+     (expression
+      (exprPrimary
+       (identifier))))))
+  (functionBodyStmt
+   (varAssign
+    (lValue
+     (identifier))
+    (expression
+     (operatorExpr
+      (expression
+       (operatorExpr
+        (expression
+         (exprPrimary
+          (identifier)))
+        (binop)
+        (expression
+         (exprPrimary
+          (identifier)))))
+      (binop)
+      (expression
+       (exprPrimary
+        (identifier))))))))
+(identifier))))

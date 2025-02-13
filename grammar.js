@@ -865,7 +865,8 @@ module.exports = grammar({
       $.intLiteral, 
       $.realLiteral, 
       $.stringLiteral,
-      $.Identifier
+      $.boolLiteral,
+      $.Identifier,
     ),
     taggedUnionPattern: $ => choice(
       prec.left(seq(
@@ -877,30 +878,13 @@ module.exports = grammar({
       )),
     ),
     structPattern: $ => prec.left(seq(
-      $.Identifier, '{', $.identifier, ':', $.pattern,
-                         repeatseq(',', $.identifier, ':', $.pattern), '}'
+      $.Identifier, '{', optseq($.identifier, ':', $.pattern,
+                                repeatseq(',', $.identifier, ':', $.pattern)), '}'
     )),
     tuplePattern: $ => prec.left(seq(
       '{', $.pattern, repeatseq(',', $.pattern), '}'
     )),
-
-    // ============================================================
-    // sec 11.2 Case expressions with pattern matching
-
-    caseExpr: $ => prec.left(seq(
-      'case', '(', $.expression, ')', 'matches'.
-        // @ts-ignore
-        repeat($.caseExprItem),
-      'endcase'
-    )),
-      
-    caseExprItem: $ => choice(
-      prec.left(seq(
-        $.pattern, optseq('&&&', $.expression), ':', $.expression
-      )),
-      seq('default', optional(':'), $.expression)
-    ),
-
+    
     // ================================================================
     // sec 12 Finite State Machines
 
@@ -1047,6 +1031,8 @@ module.exports = grammar({
     binDigitsUnderscore: $ => /[0-1_]+/,
 
     stringLiteral: $ => /"([^"\\]|\\[\s\S])*"/,
+
+    boolLiteral: $ => choice("True", "False"),
 
     realLiteral: $ => choice(
       seq($.decNum, optseq('.', $.decDigitsUnderscore), $.exp, 
