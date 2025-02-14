@@ -639,6 +639,10 @@ module.exports = grammar({
       $.actionValueBlock,
       // NOTE: Spec allows repeat0, but there is no way to have an empty body?
       repeat1($.functionBodyStmt),
+      // NOTE: BSV allows returning function value by assigning to function name.
+      //       The spec doesn't provide the below explicit rule to allow this in general.
+      field('functionNameAssign', 
+        prec.left(seq($.identifier, '=', $.functionBodyStmt, ';'))),
     ),
     functionBodyStmt: $ => choice(
       $.returnStmt, 
@@ -1110,6 +1114,7 @@ module.exports = grammar({
     [$.lValue, $.varDeclDo],
     [$.typeIde, $.structExpr],
     [$.tupleBind, $.exprPrimary],
+    [$.lValue, $.functionBody],
 
   ]
 
