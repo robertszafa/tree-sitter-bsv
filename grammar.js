@@ -470,7 +470,8 @@ module.exports = grammar({
     )),
     typedefTaggedUnion: $ => prec.left(seq(
       'typedef', 'union', 'tagged', '{',
-        repeat($.unionMember), 
+        // NOTE: The spec allows an empty body, but bsc does not.
+        repeat1($.unionMember), 
       '}', $.typeDefType, optional($.derives), ';'
     )),
     structMember: $ => choice(
