@@ -288,6 +288,8 @@ module.exports = grammar({
       $.varAssign,
       $.functionDef,
       $.moduleDef,
+      // NOTE: The spec does not say this, but bsc allows naked condExprs.
+      seq($.condExpr, ';'),
       ctxtBeginEndStmt($, $.moduleStmt),
       ctxtIf($, $.moduleStmt),
       ctxtCase($, $.moduleStmt),
