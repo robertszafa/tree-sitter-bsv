@@ -1060,9 +1060,10 @@ module.exports = grammar({
     ),
     exp: $ => choice('e', 'E'),
 
-    // \p{L} matches any character in the unicode category.
+    // \p{L} matches any character in the unicode category. \p{Lu} for upper case unicode letter.
+    // For Unicode in regex, see https://www.regular-expressions.info/unicode.html
     identifier: $ => token(/[a-zA-Z_\p{L}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with any case.
-    Identifier: $ => token(/[A-Z_\p{L}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with upper case.
+    Identifier: $ => token(/[A-Z_\p{Lu}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with upper case.
 
     // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment/36328890#36328890
     // from: https://github.com/tree-sitter/tree-sitter-c/blob/master/grammar.js
