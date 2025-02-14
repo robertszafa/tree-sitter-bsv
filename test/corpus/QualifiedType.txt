@@ -1,0 +1,33 @@
+====================
+namespaced import
+====================
+
+import List::*;
+
+Prelude::List#(Prelude::Bool) xs = nil;
+
+---
+
+
+(sourceFile
+ (importDecl
+  (importItem
+   (packageIde
+    (identifier))))
+ (packageStmt
+  (varDecl
+   (type
+    (identifier)
+    (typePrimary
+     (typeIde
+      (identifier))
+     (type
+      (identifier)
+      (typePrimary
+       (typeIde
+        (identifier))))))
+   (varInit
+    (identifier)
+    (expression
+     (exprPrimary
+      (identifier)))))))

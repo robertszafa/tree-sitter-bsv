@@ -20,10 +20,7 @@ typedef union tagged {
  (comment)
  (ERROR
   (ERROR
-   (typeIde
-    (identifier))
+   (identifier)
    (identifier)
    (identifier))
-  (typeIde
-   (identifier))))
-
+  (identifier)))

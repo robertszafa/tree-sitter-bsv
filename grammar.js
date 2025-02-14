@@ -179,11 +179,15 @@ module.exports = grammar({
     // ================================================================
     // sec 4 Types
 
-    type: $ => choice(
-      $.typePrimary, 
-      prec.left(seq(
-        $.typePrimary, '(', $.type, repeatseq(',', $.type), ')'
-      ))
+    type: $ => seq(
+      // NOTE: bsc allows namespaced types, e.g., Prelude::List.
+      repeatseq($.identifier, '::'), 
+      choice(
+        $.typePrimary, 
+        prec.left(seq(
+          $.typePrimary, '(', $.type, repeatseq(',', $.type), ')'
+        ))
+      )
     ),
 
     typePrimary: $ => choice(
