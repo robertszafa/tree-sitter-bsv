@@ -300,14 +300,23 @@ module.exports = grammar({
     // sec 5.4 Module and interface instantiation
 
     // sec 5.4.1 Short form instantiation
-    moduleInst: $ => prec.left(seq(
-      optional($.attributeInstances),
-      // NOTE: Contrary to spec, we make the type optional, since
-      //       we could be assigning to an already declared Vector for example.
-      //       We also do s/identifier/lValue to allow asigning to array indexes,
-      //       or to allow things like concurrent registers.
-      optional($.type), $.lValue, '<-', $.moduleApp, ';'
-    )),
+    moduleInst: $ => choice(
+      prec.left(seq(
+        optional($.attributeInstances),
+        // NOTE: Contrary to spec, we make the type optional, since
+        //       we could be assigning to an already declared Vector for example.
+        //       We also do s/identifier/lValue to allow asigning to array indexes,
+        //       or to allow things like concurrent registers.
+        optional($.type), $.lValue, '<-', $.moduleApp, ';'
+      )),
+      // Long Form
+      prec.left(seq(
+        optional($.attributeInstances), 
+        $.type, $.identifier, '(', ')', ';', 
+        $.moduleApp2, $.identifier, '(', optional($.moduleActualArgs), ')', ';'
+      ),
+      )
+    ),
     moduleApp: $ => prec.left(seq(
       // NOTE: Parens are optional in the bsc implementation.
       $.identifier, optseq('(', 
@@ -321,11 +330,6 @@ module.exports = grammar({
     ),
 
     // sec 5.4.2 Long form instantiation (depractaed)
-    moduleInstLongForm: $ => seq(
-      optional($.attributeInstances), 
-      $.type, $.identifier, '(', ')', ';', 
-      $.moduleApp2, $.identifier, '(', optional($.moduleActualArgs), ')', ';'
-    ),
     moduleApp2: $ => seq(
       $.identifier, optseq('#', 
         '(', $.moduleActualParam,repeatseq(',', $.moduleActualParam)), ')'
@@ -569,12 +573,20 @@ module.exports = grammar({
     ),
     lValue: $ => choice(
       $.identifier, 
+      // NOTE: The spec is missing this.
+      $.tupleBind,
       prec.right(seq($.lValue, '.', $.identifier)),
       prec.right(seq($.lValue, '[', $.expression, ']')),
       prec.right(seq($.lValue, '[', $.expression, ':', $.expression, ']'))
     ),
     varDeclDo: $ => prec.left(seq($.type, $.identifier, '<-', $.expression, ';')),
     varDo: $ => prec.left(seq($.identifier, '<-', $.expression, ';')),
+
+    // NOTE: The spec does not have this rule, but it is supported by bsc.
+    //       This should work: {b, i, .*} <- mkSub;
+    tupleBind: $ => prec.left(seq(
+      '{', choice($.identifier, '.*'), repeatseq(',', choice($.identifier, '.*')), '}'
+    )),
     
     regWrite: $ => choice(
       // NOTE: Spec is missing semicolon. regWrite could be without one, 
@@ -1093,6 +1105,8 @@ module.exports = grammar({
     [$.lValue, $.varDo],
     [$.varInit, $.lValue],
     [$.lValue, $.varDeclDo],
+    [$.typeIde, $.structExpr],
+    [$.tupleBind, $.exprPrimary],
 
   ]
 
