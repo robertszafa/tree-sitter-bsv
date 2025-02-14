@@ -621,7 +621,7 @@ module.exports = grammar({
     //       to appear in function/method arguments.
     //       Also, we have optional parens, contrary to spec?
     functionProto: $ => prec.left(seq(
-      'function', $.type, $.identifier,
+      'function', $.type, choice($.identifier, seq('\\', $.binop)),
           optseq('(', optional($.functionFormals), ')'), 
           optional($.provisos), optional($.expression)
     )),

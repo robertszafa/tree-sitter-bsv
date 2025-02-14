@@ -1,0 +1,37 @@
+====================
+function operator
+====================
+
+function int \+ (int a, int b);
+  return ?;
+endfunction
+
+---
+
+(sourceFile
+ (packageStmt
+  (functionDef
+   (functionProto
+    (type
+     (typePrimary
+      (typeIde
+       (identifier))))
+    (binop)
+    (functionFormals
+     (functionFormal
+      (type
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (identifier))
+     (functionFormal
+      (type
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (identifier))))
+   (functionBody
+    (functionBodyStmt
+     (returnStmt
+      (expression
+       (exprPrimary))))))))
