@@ -1,0 +1,147 @@
+====================
+naked expr case expr
+====================
+
+typedef enum {Foo, Bar, Foobar} FooNum deriving(Bits, Eq);
+
+module mkCase(Empty);
+  Reg#(int) r <- mkReg(0);
+  Reg#(FooNum) r_foo <- mkReg(Foo);
+  // Reg#(FooNum) r_foo <- case (8) matches 
+  //                         2: return mkReg(Foo);
+  //                         3: mkReg(Bar);
+  //                       endcase;
+
+  rule change_foo;
+    r_foo <= case (r_foo) matches
+                Foo: Bar;
+                Bar: r == 42 ? Foobar : Bar;
+                Foobar: Foobar;
+             endcase;
+  endrule
+endmodule
+
+---
+
+
+    (sourceFile
+      (packageStmt
+        (typeDef
+          (typedefEnum
+            (typedefEnumElements
+              (typedefEnumElement
+                (Identifier))
+              (typedefEnumElement
+                (Identifier))
+              (typedefEnumElement
+                (Identifier)))
+            (Identifier)
+            (derives
+              (typeclassIde
+                (Identifier))
+              (typeclassIde
+                (Identifier))))))
+      (packageStmt
+        (moduleDef
+          (moduleProto
+            (identifier)
+            (moduleFormalArgs
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))))))
+          (moduleStmt
+            (varDeclDo
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))
+                  (type
+                    (typePrimary
+                      (typeIde
+                        (identifier))))))
+              (identifier)
+              (rValue
+                (expression
+                  (exprPrimary
+                    (functionCall
+                      (exprPrimary
+                        (identifier))
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))))))
+          (moduleStmt
+            (varDeclDo
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))
+                  (type
+                    (typePrimary
+                      (typeIde
+                        (identifier))))))
+              (identifier)
+              (rValue
+                (expression
+                  (exprPrimary
+                    (functionCall
+                      (exprPrimary
+                        (identifier))
+                      (expression
+                        (exprPrimary
+                          (identifier)))))))))
+          (comment)
+          (comment)
+          (comment)
+          (comment)
+          (moduleStmt
+            (rule
+              (identifier)
+              (actionStmt
+                (regWrite
+                  (lValue
+                    (identifier))
+                  (rValue
+                    (expression
+                      (exprPrimary
+                        (identifier)))
+                    (pattern
+                      (constantPattern
+                        (Identifier)))
+                    (expression
+                      (exprPrimary
+                        (identifier)))
+                    (pattern
+                      (constantPattern
+                        (Identifier)))
+                    (expression
+                      (condExpr
+                        (condPredicate
+                          (exprOrCondPattern
+                            (expression
+                              (operatorExpr
+                                (expression
+                                  (exprPrimary
+                                    (identifier)))
+                                (binop)
+                                (expression
+                                  (exprPrimary
+                                    (intLiteral
+                                      (unsizedIntLiteral
+                                        (decNum
+                                          (decDigits))))))))))
+                        (expression
+                          (exprPrimary
+                            (identifier)))
+                        (expression
+                          (exprPrimary
+                            (identifier)))))
+                    (pattern
+                      (constantPattern
+                        (Identifier)))
+                    (expression
+                      (exprPrimary
+                        (identifier)))))))))))

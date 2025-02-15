@@ -13,48 +13,47 @@ endfunction: f
 
 ---
 
-(sourceFile
-  (packageStmt
-    (functionDef
-      (functionProto
-        (type
-          (typePrimary
-            (typeIde
-        (identifier))))
-        (identifier)
-        (functionFormals
-          (functionFormal
+    (sourceFile
+      (packageStmt
+        (functionDef
+          (functionProto
             (type
               (typePrimary
                 (typeIde
-            (identifier))))
-      (identifier))))
-      (functionBody
-        (identifier)
-        (functionBodyStmt
-          (expression
-            (exprPrimary
-          (identifier)))
-          (expression
-            (exprPrimary
-          (identifier)))
-          (functionBodyStmt
-            (returnStmt
-              (expression
-                (exprPrimary
-                  (intLiteral
-                    (unsizedIntLiteral
-                      (decNum
-          (decDigits))))))))
-          (expression
-            (exprPrimary
-          (identifier)))
-          (functionBodyStmt
-            (returnStmt
-              (expression
-                (exprPrimary
-                  (intLiteral
-                    (unsizedIntLiteral
-                      (decNum
-      (decDigits))))))))))
-(identifier))))
+                  (identifier))))
+            (identifier)
+            (functionFormals
+              (functionFormal
+                (type
+                  (typePrimary
+                    (typeIde
+                      (identifier))))
+                (identifier))))
+          (functionBody
+            (functionBodyStmt
+              (varAssign
+                (lValue
+                  (identifier))
+                (rValue
+                  (expression
+                    (exprPrimary
+                      (identifier)))
+                  (expression
+                    (exprPrimary
+                      (identifier)))
+                  (expression
+                    (exprPrimary
+                      (intLiteral
+                        (unsizedIntLiteral
+                          (decNum
+                            (decDigits))))))
+                  (expression
+                    (exprPrimary
+                      (identifier)))
+                  (expression
+                    (exprPrimary
+                      (intLiteral
+                        (unsizedIntLiteral
+                          (decNum
+                            (decDigits))))))))))
+          (identifier))))

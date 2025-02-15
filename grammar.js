@@ -40,17 +40,19 @@ function ctxtIf($, ctxtStmt) {
   )));
 }
 
+
 function ctxtCase($, ctxtStmt) {
+  // Note that we allow an optional 'return' in the items, since bsc allows this.
   let CaseItem = () => prec.left(seq(
-      $.expression, repeatseq(',', $.expression), ':', ctxtStmt
+      $.expression, repeatseq(',', $.expression), ':', optional('return'), ctxtStmt
   ));
 
   let CasePatItem = () => prec.left(seq(
-      $.pattern, repeatseq('&&&', $.expression), ':', ctxtStmt
+      $.pattern, repeatseq('&&&', $.expression), ':', optional('return'), ctxtStmt
   ));
 
   let DefaultItem = () => prec.left(seq(
-    'default', optional(':'), ctxtStmt
+    'default', optional(':'), optional('return'), ctxtStmt
   ));
 
   return field("case_expr", choice(
@@ -162,7 +164,7 @@ module.exports = grammar({
       $.varDecl, 
       // NOTE: Only the below "varAssign" rule choice is valid at packageStmt scope,
       //       contrary to the spec.
-      prec.left(seq($.lValue, '=', $.expression, ';')),
+      prec.left(seq($.lValue, '=', $.rValue)),
       $.functionDef,
       $.typeclassDef,
       $.typeclassInstanceDef,
@@ -363,7 +365,7 @@ module.exports = grammar({
       seq(
         'method', optional($.type), $.identifier, 
         optseq('(', optional($.methodFormals), ')'),
-        optional($.implicitCond), '=', $.expression, ';'
+        optional($.implicitCond), '=', $.rValue
       ),
       // Action method (sec. 5.5.1)
       seq(
@@ -396,7 +398,7 @@ module.exports = grammar({
       ),
       // Short form (sec 5.5.3)
       seq(
-        'interface', optional($.type), $.identifier, '=', $.expression, ';'
+        'interface', optional($.type), $.identifier, '=', $.rValue
       ),
     ),
     interfaceStmt: $ => choice(
@@ -553,7 +555,7 @@ module.exports = grammar({
 
     varDecl: $ => choice(
       prec.left(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
-      prec.left(seq('let', $.identifier, '=', $.expression, ';')),
+      prec.left(seq('let', $.identifier, '=', $.rValue)),
       // NOTE: The spec is missing the below rule to allow declarations like:
       //       Reg#(Maybe#(t)) data();
       prec.left(seq($.type, $.identifier, 
@@ -570,14 +572,17 @@ module.exports = grammar({
       '[', $.expression, ']', repeatseq('[', $.expression, ']')
     )),
 
-    // Variable assignment 
+    // Variable assignment. Note that we use rValue instead of expression.
     varAssign: $ => choice(
-      prec.left(seq($.lValue, '=', $.expression, ';')),
+      prec.left(seq($.lValue, '=', $.rValue)),
       // if expression is the value returned by an actionvalue method:
-      prec.left(seq('let', $.identifier, '<-', $.expression, ';')),
+      prec.left(seq('let', $.identifier, '<-', $.rValue)),
       // sec 11.4 pattern matching
-      prec.left(seq('match', $.pattern, '=', $.expression, ';'))
+      prec.left(seq('match', $.pattern, '=', $.rValue))
     ),
+    varDeclDo: $ => prec.left(seq($.type, $.identifier, '<-', $.rValue)),
+    varDo: $ => prec.left(seq($.identifier, '<-', $.rValue)),
+
     lValue: $ => choice(
       $.identifier, 
       // NOTE: The spec is missing this.
@@ -586,8 +591,14 @@ module.exports = grammar({
       prec.right(seq($.lValue, '[', $.expression, ']')),
       prec.right(seq($.lValue, '[', $.expression, ':', $.expression, ']'))
     ),
-    varDeclDo: $ => prec.left(seq($.type, $.identifier, '<-', $.expression, ';')),
-    varDo: $ => prec.left(seq($.identifier, '<-', $.expression, ';')),
+
+    // NOTE: This rule does not exist in the language spec, but we add it here
+    //       because we also allow a caseExpr to appear here, which the spec 
+    //       misses. We use rValue instead of seq(expression, ';').
+    rValue: $ => choice(
+      seq($.expression, ';'),
+      seq(ctxtCase($, seq($.expression, ';')), ';'),
+    ),
 
     // NOTE: The spec does not have this rule, but it is supported by bsc.
     //       This should work: {b, i, .*} <- mkSub;
@@ -599,11 +610,11 @@ module.exports = grammar({
       // NOTE: Spec is missing semicolon. regWrite could be without one, 
       //       relying on super rules to add one, but this is not the approach
       //       taken with other rules in the spec, e.g., varDo.
-      prec.left(seq($.lValue, '<=', $.expression, ';')),
-      prec.left(seq('(', $.expression, ')', '<=', $.expression, ';')),
-      prec.left(seq($.lValue, $.arrayIndexes, '<=', $.expression, ';')),
-      prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']', '<=', $.expression, ';')),
-      prec.left(seq($.lValue, '.', $.identifier, '<=', $.expression, ';')),
+      prec.left(seq($.lValue, '<=', $.rValue)),
+      prec.left(seq('(', $.expression, ')', '<=', $.rValue)),
+      prec.left(seq($.lValue, $.arrayIndexes, '<=', $.rValue)),
+      prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']', '<=', $.rValue)),
+      prec.left(seq($.lValue, '.', $.identifier, '<=', $.rValue)),
     ),
     arrayIndexes: $ => repeat1(seq('[', $.expression, ']')),
     
@@ -643,10 +654,6 @@ module.exports = grammar({
       $.actionValueBlock,
       // NOTE: Spec allows repeat0, but there is no way to have an empty body?
       repeat1($.functionBodyStmt),
-      // NOTE: BSV allows returning function value by assigning to function name.
-      //       The spec doesn't provide the below explicit rule to allow this in general.
-      field('functionNameAssign', 
-        prec.left(seq($.identifier, '=', $.functionBodyStmt, ';'))),
     ),
     functionBodyStmt: $ => choice(
       $.returnStmt, 
@@ -1119,7 +1126,10 @@ module.exports = grammar({
     [$.lValue, $.varDeclDo],
     [$.typeIde, $.structExpr],
     [$.tupleBind, $.exprPrimary],
-    [$.lValue, $.functionBody],
+    [$.moduleStmt, $.expression],
+    [$.moduleStmt, $.exprPrimary],
+    [$.exprPrimary, $.actionValueStmt],
+    [$.expressionStmt, $.functionBodyStmt],
 
   ]
 
