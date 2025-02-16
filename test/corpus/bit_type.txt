@@ -16,7 +16,8 @@ fourBits = 15;
           (type
             (typePrimary))
           (varInit
-            (identifier))))
+            (lValue
+              (identifier)))))
       (packageStmt
         (lValue
           (identifier))
@@ -32,11 +33,10 @@ fourBits = 15;
           (type
             (typePrimary
               (typeNat
-                (decDigits))
-              (typeNat
                 (decDigits))))
           (varInit
-            (identifier))))
+            (lValue
+              (identifier)))))
       (packageStmt
         (lValue
           (identifier))

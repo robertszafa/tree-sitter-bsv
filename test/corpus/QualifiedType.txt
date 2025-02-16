@@ -27,7 +27,8 @@ Prelude::List#(Prelude::Bool) xs = nil;
        (typeIde
         (identifier))))))
    (varInit
-    (identifier)
+    (lValue
+      (identifier))
     (expression
      (exprPrimary
       (identifier)))))))

@@ -567,7 +567,8 @@ module.exports = grammar({
     ),
 
     varInit: $ => prec.left(seq(
-      $.identifier, optional($.arrayDims), optseq('=', $.expression)
+      // NOTE: Contrary to the spec, we allow an lValue here, not just an identifier.
+      $.lValue, optional($.arrayDims), optseq('=', $.expression)
     )),
     arrayDims: $ => prec.left(seq(
       '[', $.expression, ']', repeatseq('[', $.expression, ']')
@@ -1123,7 +1124,6 @@ module.exports = grammar({
     [$.lValue, $.actionStmt],
     [$.actionStmt, $.fsmStmt],
     [$.lValue, $.varDo],
-    [$.varInit, $.lValue],
     [$.lValue, $.varDeclDo],
     [$.typeIde, $.structExpr],
     [$.tupleBind, $.exprPrimary],
@@ -1131,6 +1131,7 @@ module.exports = grammar({
     [$.moduleStmt, $.exprPrimary],
     [$.exprPrimary, $.actionValueStmt],
     [$.expressionStmt, $.functionBodyStmt],
+    [$.arrayDims, $.lValue],
 
   ]
 

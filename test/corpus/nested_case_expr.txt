@@ -100,11 +100,14 @@ endfunction: foo
                     (typeIde
                       (identifier))))
                 (varInit
-                  (identifier))
+                  (lValue
+                    (identifier)))
                 (varInit
-                  (identifier))
+                  (lValue
+                    (identifier)))
                 (varInit
-                  (identifier))))
+                  (lValue
+                    (identifier)))))
             (functionBodyStmt
               (expression
                 (exprPrimary

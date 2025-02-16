@@ -532,7 +532,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (intLiteral
@@ -610,7 +611,8 @@ endpackage: Mergesort
                           (typeIde
                             (identifier))))))))
               (varInit
-                (identifier))))
+                (lValue
+                  (identifier)))))
           (comment)
           (moduleStmt
             (varDecl
@@ -619,7 +621,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (intLiteral
@@ -633,7 +636,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (intLiteral
@@ -647,7 +651,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (intLiteral
@@ -661,7 +666,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (intLiteral
@@ -726,7 +732,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier)
+                    (lValue
+                      (identifier))
                     (expression
                       (exprPrimary
                         (methodCall
@@ -745,7 +752,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier))))
+                    (lValue
+                      (identifier)))))
               (actionStmt
                 (varDecl
                   (identifier)
@@ -1979,7 +1987,8 @@ endpackage: Mergesort
               (typeIde
                 (identifier))))
           (varInit
-            (identifier)
+            (lValue
+              (identifier))
             (expression
               (exprPrimary
                 (intLiteral
@@ -2007,7 +2016,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (intLiteral
@@ -2362,7 +2372,8 @@ endpackage: Mergesort
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (methodCall
@@ -2427,7 +2438,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier)
+                    (lValue
+                      (identifier))
                     (expression
                       (exprPrimary
                         (structExpr
@@ -2767,7 +2779,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier)
+                    (lValue
+                      (identifier))
                     (expression
                       (exprPrimary
                         (structExpr
@@ -3098,7 +3111,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier)
+                    (lValue
+                      (identifier))
                     (expression
                       (exprPrimary)))))
               (actionStmt
@@ -3108,7 +3122,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier)
+                    (lValue
+                      (identifier))
                     (expression
                       (exprPrimary)))))
               (actionStmt
@@ -3258,7 +3273,8 @@ endpackage: Mergesort
                       (typeIde
                         (identifier))))
                   (varInit
-                    (identifier)
+                    (lValue
+                      (identifier))
                     (expression
                       (exprPrimary
                         (structExpr

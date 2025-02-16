@@ -214,7 +214,8 @@ endpackage
               (typeIde
                 (identifier))))
           (varInit
-            (identifier)
+            (lValue
+              (identifier))
             (expression
               (exprPrimary
                 (intLiteral
@@ -293,15 +294,11 @@ endpackage
               (type
                 (typePrimary
                   (typeNat
-                    (decDigits))
-                  (typeNat
                     (decDigits))))
               (Identifier))
             (unionMember
               (type
                 (typePrimary
-                  (typeNat
-                    (decDigits))
                   (typeNat
                     (decDigits))))
               (Identifier))
@@ -311,15 +308,11 @@ endpackage
                   (type
                     (typePrimary
                       (typeNat
-                        (decDigits))
-                      (typeNat
                         (decDigits))))
                   (identifier))
                 (structMember
                   (type
                     (typePrimary
-                      (typeNat
-                        (decDigits))
                       (typeNat
                         (decDigits))))
                   (identifier)))
@@ -772,7 +765,8 @@ endpackage
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier)
+                (lValue
+                  (identifier))
                 (expression
                   (exprPrimary
                     (identifier))))))
@@ -1412,7 +1406,8 @@ endpackage
                   (typeIde
                     (identifier))))
               (varInit
-                (identifier))))
+                (lValue
+                  (identifier)))))
           (moduleStmt
             (varAssign
               (lValue
