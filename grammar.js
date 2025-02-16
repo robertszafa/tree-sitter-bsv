@@ -195,7 +195,8 @@ module.exports = grammar({
     typePrimary: $ => choice(
       seq($.typeIde, optseq('#', '(', $.type, repeatseq(',', $.type), ')')),
       $.typeNat,
-      seq('bit', optseq('[', $.typeNat, ':', $.typeNat, ']'))
+      //  Only [N:0] bit vectors supported
+      seq('bit', optseq('[', $.typeNat, ':', '0', ']'))
     ),
 
     // NOTE: To quote from BSV reference manual: Data types in BSV are case 
