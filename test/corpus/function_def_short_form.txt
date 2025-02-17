@@ -1,0 +1,21 @@
+====================
+function def short form
+====================
+
+function Bool f() = False;
+
+---
+
+(sourceFile
+ (packageStmt
+  (functionDef
+   (functionProto
+    (type
+     (typePrimary
+      (typeIde
+       (identifier))))
+    (identifier))
+   (rValue
+    (expression
+     (exprPrimary
+      (identifier)))))))

@@ -624,14 +624,21 @@ module.exports = grammar({
     // ================================================================
     // sec 9.8 Function definitions
 
-    functionDef: $ => prec.left(seq(
-      optional($.attributeInstances), 
-      // NOTE: We removed the semicolon from the functionProto rule
-      //       to allow functionProtos to appear in method/function arguments.
-      $.functionProto, ';',
-        $.functionBody, 
-      'endfunction', optseq(':', $.identifier)
-    )),
+    functionDef: $ => choice(
+      prec.left(seq(
+        optional($.attributeInstances), 
+        // NOTE: We removed the semicolon from the functionProto rule
+        //       to allow functionProtos to appear in method/function arguments.
+        $.functionProto, ';',
+          $.functionBody, 
+        'endfunction', optseq(':', $.identifier)
+      )),
+      // NOTE: A function def, similarly to method def, can have a short form.
+      prec.left(seq(
+        optional($.attributeInstances), 
+        $.functionProto, '=', $.rValue
+      )),
+    ),
 
     // NOTE: Contrary to the spec, our rule does not have a semicolon, requiring
     //       any super rules to handle them. This is to enable function prototypes
