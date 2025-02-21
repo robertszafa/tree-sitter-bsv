@@ -901,7 +901,12 @@ module.exports = grammar({
     // ================================================================
     // sec 11 Pattern matching
 
-    pattern: $ => choice(
+    // NOTE: We allow optional parens around a pattern.
+    pattern: $ => prec.left(choice(
+      $._pattern,
+      seq('(', $._pattern, ')')
+    )),
+    _pattern: $ => choice(
       prec.right(seq('.', $.identifier)),
       '.*',
       $.constantPattern,
