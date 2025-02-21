@@ -187,16 +187,16 @@ module.exports = grammar({
     // ================================================================
     // sec 4 Types
 
-    type: $ => seq(
+    type: $ => prec.left(seq(
       // NOTE: bsc allows namespaced types, e.g., Prelude::List.
-      repeatseq($.identifier, '::'), 
+      optseq($.identifier, '::'), 
       choice(
         $.typePrimary, 
         prec.left(seq(
           $.typePrimary, '(', $.type, repeatseq(',', $.type), ')'
         ))
       )
-    ),
+    )),
 
     typePrimary: $ => choice(
       seq($.typeIde, optseq('#', '(', $.type, repeatseq(',', $.type), ')')),
@@ -743,6 +743,8 @@ module.exports = grammar({
     )),
 
     exprPrimary: $ => choice(
+      // NOTE: An identifier can be qualified.
+      prec.left(seq($.identifier, '::', $.identifier)),
       $.identifier,
       $.intLiteral,
       $.realLiteral,
