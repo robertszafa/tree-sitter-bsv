@@ -175,7 +175,6 @@ endpackage
 
 ---
 
-
     (sourceFile
       (comment)
       (packageIde
@@ -307,9 +306,9 @@ endpackage
             (comment)
             (derives
               (typeclassIde
-                (Identifier))
+                (identifier))
               (typeclassIde
-                (Identifier))))))
+                (identifier))))))
       (comment)
       (comment)
       (comment)
@@ -341,18 +340,15 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral)))))
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier)))))
+                    (identifier))))
               (type
                 (typePrimary
                   (typeIde
@@ -363,8 +359,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -378,11 +373,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -396,11 +389,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -426,11 +417,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -448,11 +437,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -470,11 +457,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -488,11 +473,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -510,11 +493,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -532,11 +513,9 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -576,17 +555,14 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -600,17 +576,14 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))
                   (attrSpec
-                    (attrName
-                      (identifier)))
+                    (identifier))
                   (attrSpec
-                    (attrName
-                      (identifier)))))
+                    (identifier))))
               (type
                 (typePrimary
                   (typeIde
@@ -621,8 +594,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -635,8 +607,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -661,8 +632,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -679,8 +649,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -697,8 +666,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -711,8 +679,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -729,8 +696,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -747,8 +713,7 @@ endpackage
                   (attributeInstances
                     (attributeInstance
                       (attrSpec
-                        (attrName
-                          (identifier))
+                        (identifier)
                         (expression
                           (exprPrimary
                             (stringLiteral))))))
@@ -764,7 +729,7 @@ endpackage
       (packageStmt
         (typeclassInstanceDef
           (typeclassIde
-            (Identifier))
+            (identifier))
           (type
             (typePrimary
               (typeIde
@@ -863,11 +828,9 @@ endpackage
                 (attributeInstances
                   (attributeInstance
                     (attrSpec
-                      (attrName
-                        (identifier)))
+                      (identifier))
                     (attrSpec
-                      (attrName
-                        (identifier)))))
+                      (identifier))))
                 (identifier)
                 (actionStmt
                   (functionCall
@@ -966,8 +929,7 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -1080,10 +1042,10 @@ endpackage
                         (identifier))
                       (expression
                         (exprPrimary
-                          (identifier)))
+                          (boolLiteral)))
                       (expression
                         (exprPrimary
-                          (identifier)))))))))
+                          (boolLiteral)))))))))
           (comment)
           (comment)
           (moduleStmt
@@ -1093,7 +1055,7 @@ endpackage
                 (expression
                   (exprPrimary
                     (interfaceExpr
-                      (Identifier)
+                      (identifier)
                       (comment)
                       (interfaceStmt
                         (methodDef
@@ -1332,8 +1294,7 @@ endpackage
               (attributeInstances
                 (attributeInstance
                   (attrSpec
-                    (attrName
-                      (identifier))
+                    (identifier)
                     (expression
                       (exprPrimary
                         (stringLiteral))))))
@@ -1446,10 +1407,10 @@ endpackage
                         (identifier))
                       (expression
                         (exprPrimary
-                          (identifier)))
+                          (boolLiteral)))
                       (expression
                         (exprPrimary
-                          (identifier)))))))))
+                          (boolLiteral)))))))))
           (comment)
           (comment)
           (moduleStmt
@@ -1459,7 +1420,7 @@ endpackage
                 (expression
                   (exprPrimary
                     (interfaceExpr
-                      (Identifier)
+                      (identifier)
                       (comment)
                       (interfaceStmt
                         (methodDef

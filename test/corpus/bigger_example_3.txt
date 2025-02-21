@@ -516,8 +516,7 @@ endpackage: Mergesort
           (attributeInstances
             (attributeInstance
               (attrSpec
-                (attrName
-                  (identifier)))))
+                (identifier))))
           (moduleProto
             (identifier)
             (moduleFormalArgs
@@ -1166,7 +1165,7 @@ endpackage: Mergesort
                       (whileFsmStmt
                         (expression
                           (exprPrimary
-                            (identifier)))
+                            (boolLiteral)))
                         (loopBodyFsmStmt
                           (fsmStmt
                             (seqFsmStmt
@@ -2000,8 +1999,7 @@ endpackage: Mergesort
           (attributeInstances
             (attributeInstance
               (attrSpec
-                (attrName
-                  (identifier)))))
+                (identifier))))
           (moduleProto
             (identifier)
             (moduleFormalArgs
@@ -2228,7 +2226,7 @@ endpackage: Mergesort
                         (identifier))
                       (expression
                         (exprPrimary
-                          (identifier)))))))))
+                          (boolLiteral)))))))))
           (moduleStmt
             (varDeclDo
               (type
@@ -3447,7 +3445,7 @@ endpackage: Mergesort
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))))
+                        (boolLiteral))))))))
           (comment)
           (comment)
           (moduleStmt
@@ -3460,7 +3458,7 @@ endpackage: Mergesort
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (actionStmt
                 (methodCall
                   (exprPrimary
@@ -3730,7 +3728,7 @@ endpackage: Mergesort
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (actionStmt
                 (condPredicate
                   (exprOrCondPattern

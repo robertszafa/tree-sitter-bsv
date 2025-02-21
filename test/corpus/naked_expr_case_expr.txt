@@ -30,17 +30,17 @@ endmodule
           (typedefEnum
             (typedefEnumElements
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier)))
-            (Identifier)
+                (identifier)))
+            (identifier)
             (derives
               (typeclassIde
-                (Identifier))
+                (identifier))
               (typeclassIde
-                (Identifier))))))
+                (identifier))))))
       (packageStmt
         (moduleDef
           (moduleProto
@@ -110,13 +110,13 @@ endmodule
                         (identifier)))
                     (pattern
                       (constantPattern
-                        (Identifier)))
+                        (identifier)))
                     (expression
                       (exprPrimary
                         (identifier)))
                     (pattern
                       (constantPattern
-                        (Identifier)))
+                        (identifier)))
                     (expression
                       (condExpr
                         (condPredicate
@@ -141,7 +141,7 @@ endmodule
                             (identifier)))))
                     (pattern
                       (constantPattern
-                        (Identifier)))
+                        (identifier)))
                     (expression
                       (exprPrimary
                         (identifier)))))))))))

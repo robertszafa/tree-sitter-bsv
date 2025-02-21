@@ -57,9 +57,9 @@ endfunction: foo
                       (typeIde
                         (identifier))))
                   (identifier)))
-              (Identifier))
+              (identifier))
             (unionMember
-              (Identifier))
+              (identifier))
             (unionMember
               (type
                 (typePrimary
@@ -73,7 +73,7 @@ endfunction: foo
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (Identifier))
+              (identifier))
             (typeDefType
               (typeIde
                 (identifier))))))
@@ -115,7 +115,7 @@ endfunction: foo
               (pattern
                 (taggedUnionPattern
                   (structPattern
-                    (Identifier)
+                    (identifier)
                     (identifier)
                     (pattern
                       (constantPattern
@@ -131,11 +131,11 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
                   (structPattern
-                    (Identifier)
+                    (identifier)
                     (identifier)
                     (pattern
                       (constantPattern
@@ -150,11 +150,11 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
                   (structPattern
-                    (Identifier)
+                    (identifier)
                     (identifier)
                     (pattern
                       (identifier))
@@ -168,10 +168,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)))
+                  (identifier)))
               (functionBodyStmt
                 (varAssign
                   (lValue
@@ -179,10 +179,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)
+                  (identifier)
                   (pattern
                     (tuplePattern
                       (pattern
@@ -196,10 +196,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)
+                  (identifier)
                   (pattern
                     (tuplePattern
                       (pattern
@@ -227,7 +227,7 @@ endfunction: foo
               (pattern
                 (taggedUnionPattern
                   (structPattern
-                    (Identifier)
+                    (identifier)
                     (identifier)
                     (pattern
                       (identifier))
@@ -247,7 +247,7 @@ endfunction: foo
                             (identifier))))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)))
+                  (identifier)))
               (functionBodyStmt
                 (varAssign
                   (lValue
@@ -255,10 +255,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)
+                  (identifier)
                   (pattern)))
               (functionBodyStmt
                 (varAssign
@@ -267,7 +267,7 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier)))))))
+                        (boolLiteral)))))))
             (comment)
             (functionBodyStmt
               (expression
@@ -276,7 +276,7 @@ endfunction: foo
               (pattern
                 (taggedUnionPattern
                   (structPattern
-                    (Identifier))))
+                    (identifier))))
               (functionBodyStmt
                 (varAssign
                   (lValue
@@ -284,10 +284,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)))
+                  (identifier)))
               (functionBodyStmt
                 (varAssign
                   (lValue
@@ -295,10 +295,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)
+                  (identifier)
                   (pattern
                     (tuplePattern
                       (pattern
@@ -314,10 +314,10 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))
+                        (boolLiteral))))))
               (pattern
                 (taggedUnionPattern
-                  (Identifier)
+                  (identifier)
                   (pattern
                     (tuplePattern
                       (pattern)
@@ -329,7 +329,7 @@ endfunction: foo
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier)))))))
+                        (boolLiteral)))))))
             (functionBodyStmt
               (varAssign
                 (lValue

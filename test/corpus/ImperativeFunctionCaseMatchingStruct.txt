@@ -1,0 +1,123 @@
+====================
+case matches
+====================
+
+typedef struct {
+   Bool first;
+   Bool second;
+} OneTwo deriving (Bits);
+
+function Bool foo(OneTwo y);
+  Bool x;
+  x = True;
+  case (y) matches
+    OneTwo { first: True } : x = False;
+    OneTwo { second: .v } : x = !v;
+  endcase
+  foo = x;
+endfunction: foo
+
+---
+
+
+(sourceFile
+ (packageStmt
+  (typeDef
+   (typedefStruct
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))))
+     (identifier))
+    (structMember
+     (type
+      (typePrimary
+       (typeIde
+        (identifier))))
+     (identifier))
+    (typeDefType
+     (typeIde
+      (identifier)))
+    (derives
+     (typeclassIde
+      (identifier))))))
+ (packageStmt
+  (functionDef
+   (functionProto
+    (type
+     (typePrimary
+      (typeIde
+       (identifier))))
+    (identifier)
+    (functionFormals
+     (functionFormal
+      (type
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (identifier))))
+   (functionBody
+    (functionBodyStmt
+     (varDecl
+      (type
+       (typePrimary
+        (typeIde
+         (identifier))))
+      (varInit
+       (lValue
+        (identifier)))))
+    (functionBodyStmt
+     (varAssign
+      (lValue
+       (identifier))
+      (rValue
+       (expression
+        (exprPrimary
+         (boolLiteral))))))
+    (functionBodyStmt
+     (expression
+      (exprPrimary
+       (identifier)))
+     (pattern
+      (structPattern
+       (identifier)
+       (identifier)
+       (pattern
+        (constantPattern
+         (boolLiteral)))))
+     (functionBodyStmt
+      (varAssign
+       (lValue
+        (identifier))
+       (rValue
+        (expression
+         (exprPrimary
+          (boolLiteral))))))
+     (pattern
+      (structPattern
+       (identifier)
+       (identifier)
+       (pattern
+        (identifier))))
+     (functionBodyStmt
+      (varAssign
+       (lValue
+        (identifier))
+       (rValue
+        (expression
+         (operatorExpr
+          (unop)
+          (expression
+           (exprPrimary
+            (identifier)))))))))
+  (functionBodyStmt
+   (varAssign
+    (lValue
+     (identifier))
+    (rValue
+     (expression
+      (exprPrimary
+       (identifier)))))))
+(identifier))))
+

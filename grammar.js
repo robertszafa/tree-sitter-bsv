@@ -6,9 +6,16 @@
 
 /// This grammar implements the BSV language as described in:
 /// - Bluespec System Verilog language Reference Guide: 
-///     https://github.com/B-Lang-org/bsc/releases/latest/download/BSV_lang_ref_guide.pdf
-/// When we deviate from the spec, it is only to match the behaviour of the bsc compiler implemetation.
-/// These cases are explained in 'NOTE' comments.
+///     github.com/B-Lang-org/bsc/releases/latest/download/BSV_lang_ref_guide.pdf
+/// When we deviate from, or add to, the spec, it is only to match the behaviour
+/// of the bsc compiler implemetation: github.com/B-Lang-org/bsc
+/// These deviations are explained in 'NOTE' comments.
+///
+/// One deviation made for another reason is dropping the distinction between
+/// lower case "identifier" and upper case "Identifier". This decision was made
+/// because the tree-sitter automatic keyword extraction feature requires that 
+/// keywords be described by just one grammar rule.
+/// Tools using the parser should check if for example a typeIde is upper case.
 
 /// <reference types="tree-sitter-cli/dsl" />
 // @ts-check
@@ -150,7 +157,6 @@ module.exports = grammar({
     )),
     exportItem: $ => choice(
       seq($.identifier, optseq('(', '..', ')')),
-      seq($.Identifier, optseq('(', '..', ')')),
       seq($.packageIde, '::', '*')
     ),
 
@@ -393,7 +399,7 @@ module.exports = grammar({
     // 5.5.2 Definition of subinterfaces
     subinterfaceDef: $ => choice(
       seq(
-        'interface', $.Identifier, $.identifier, ';',
+        'interface', $.identifier, $.identifier, ';',
           repeat($.interfaceStmt), 
         'endinterface', optseq(':', $.identifier)
       ),
@@ -455,17 +461,17 @@ module.exports = grammar({
     )),
 
     typedefEnum: $ => seq(
-      'typedef', 'enum', '{', $.typedefEnumElements, '}', $.Identifier, 
+      'typedef', 'enum', '{', $.typedefEnumElements, '}', $.identifier, 
         optional($.derives), ';'
     ),
     typedefEnumElements: $ => seq(
       $.typedefEnumElement, repeatseq(',', $.typedefEnumElement)
     ),
     typedefEnumElement: $ => choice(
-      prec.left(seq($.Identifier, optseq('=', $.intLiteral))),
-      prec.left(seq($.Identifier, '[', $.intLiteral, ']',
+      prec.left(seq($.identifier, optseq('=', $.intLiteral))),
+      prec.left(seq($.identifier, '[', $.intLiteral, ']',
                   optseq('=', $.intLiteral))),
-      prec.left(seq($.Identifier, '[', $.intLiteral, ':', $.intLiteral, ']',
+      prec.left(seq($.identifier, '[', $.intLiteral, ':', $.intLiteral, ']',
                   optseq('=', $.intLiteral)))
     ),
 
@@ -486,10 +492,10 @@ module.exports = grammar({
       prec.left(seq($.subUnion, $.identifier, ';'))
     ),
     unionMember: $ => choice(
-      prec.left(seq($.type, $.Identifier, ';')),
-      prec.left(seq($.subStruct, $.Identifier, ';')),
-      prec.left(seq($.subUnion, $.Identifier, ';')),
-      prec.left(seq('void', $.Identifier, ';'))
+      prec.left(seq($.type, $.identifier, ';')),
+      prec.left(seq($.subStruct, $.identifier, ';')),
+      prec.left(seq($.subUnion, $.identifier, ';')),
+      prec.left(seq('void', $.identifier, ';'))
     ),
     subStruct: $ => prec.left(seq(
       'struct', '{', 
@@ -510,7 +516,7 @@ module.exports = grammar({
       'provisos', '(', $.proviso, repeatseq(',', $.proviso), ')'
     )),
     proviso: $ => prec.left(seq(
-      $.Identifier, '#', '(', $.type, repeatseq(',', $.type), ')'
+      $.identifier, '#', '(', $.type, repeatseq(',', $.type), ')'
     )),
 
     typeclassDef: $ => prec.left(seq(
@@ -519,7 +525,7 @@ module.exports = grammar({
           repeat($.overloadedDef), 
       'endtypeclass', optseq(':', $.typeclassIde)
     )),
-    typeclassIde: $ => $.Identifier,
+    typeclassIde: $ => $.identifier,
     typedepends: $ => prec.left(seq(
       'dependencies', '(', $.typedepend, repeatseq(',', $.typedepend), ')'
     )),
@@ -741,6 +747,8 @@ module.exports = grammar({
       $.intLiteral,
       $.realLiteral,
       $.stringLiteral,
+      // NOTE: boolLiteral seems to be missing from the spec in this rule. 
+      $.boolLiteral,
       $.systemFunctionCall,
       field('dont_care', '?'),
       prec.left(seq('(', $.expression, ')')),
@@ -858,7 +866,6 @@ module.exports = grammar({
     ),
 
     structExpr: $ => prec.left(seq(
-      // $.Identifier, '{', // TODO: Why does upper case not work here?
       $.identifier, '{', 
         $.memberBind, repeatseq(',', $.memberBind), 
       '}'
@@ -867,15 +874,15 @@ module.exports = grammar({
 
     taggedUnionExpr: $ => choice(
       // NOTE: Contrary to spec, but to match the bsc implementation, we make curly brackets optional if no binds.
-      prec.left(seq('tagged', $.Identifier, '{', $.memberBind, repeatseq(',', $.memberBind), '}')),
-      prec.left(seq('tagged', $.Identifier, $.exprPrimary)),
-      prec.left(seq('tagged', $.Identifier)),
+      prec.left(seq('tagged', $.identifier, '{', $.memberBind, repeatseq(',', $.memberBind), '}')),
+      prec.left(seq('tagged', $.identifier, $.exprPrimary)),
+      prec.left(seq('tagged', $.identifier)),
     ),
 
     interfaceExpr: $ => prec.left(seq(
-      'interface', $.Identifier, ';',
+      'interface', $.identifier, ';',
         repeat($.interfaceStmt), 
-      'endinterface', optseq(':', $.Identifier)
+      'endinterface', optseq(':', $.identifier)
     )),
 
     rulesExpr: $ => prec.left(seq(
@@ -905,11 +912,11 @@ module.exports = grammar({
       $.realLiteral, 
       $.stringLiteral,
       $.boolLiteral,
-      $.Identifier,
+      $.identifier,
     ),
     taggedUnionPattern: $ => choice(
       prec.left(seq(
-        'tagged', $.Identifier, optional($.pattern)
+        'tagged', $.identifier, optional($.pattern)
       )),
       // NOTE: The spec is missing the case of a struct union member.
       prec.left(seq(
@@ -917,7 +924,7 @@ module.exports = grammar({
       )),
     ),
     structPattern: $ => prec.left(seq(
-      $.Identifier, '{', optseq($.identifier, ':', $.pattern,
+      $.identifier, '{', optseq($.identifier, ':', $.pattern,
                                 repeatseq(',', $.identifier, ':', $.pattern)), '}'
     )),
     tuplePattern: $ => prec.left(seq(
@@ -1010,9 +1017,8 @@ module.exports = grammar({
     attributeInstance: $ => prec.left(seq(
       '(*', $.attrSpec, repeatseq(',', $.attrSpec), '*)'
     )),
-    attrSpec: $ => seq($.attrName, optseq('=', $.expression)),
-    // Could be maybe more specific here, and list all the possible names
-    attrName: $ => choice($.identifier, $.Identifier), 
+    // Could be maybe more specific here than just "identifier"; maybe list all the possible attr names.
+    attrSpec: $ => seq($.identifier, optseq('=', $.expression)),
     
 
     // ============================================================
@@ -1079,11 +1085,11 @@ module.exports = grammar({
       seq($.decNum, '.', $.decDigitsUnderscore)
     ),
     exp: $ => choice('e', 'E'),
-
+  
+    // Identifier starting with any case. See top-of-file comment on why we do not have upper case Identifier.
     // \p{L} matches any character in the unicode category. \p{Lu} for upper case unicode letter.
     // For Unicode in regex, see https://www.regular-expressions.info/unicode.html
-    identifier: $ => token(/[a-zA-Z_\p{L}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with any case.
-    Identifier: $ => token(/[A-Z_\p{Lu}][a-zA-Z0-9_\p{L}]*/), // Identifier starting with upper case.
+    identifier: $ => token(/[a-zA-Z_\p{L}][a-zA-Z0-9_\p{L}]*/), 
 
     // http://stackoverflow.com/questions/13014947/regex-to-match-a-c-style-multiline-comment/36328890#36328890
     // from: https://github.com/tree-sitter/tree-sitter-c/blob/master/grammar.js
@@ -1139,6 +1145,7 @@ module.exports = grammar({
     [$.exprPrimary, $.actionValueStmt],
     [$.expressionStmt, $.functionBodyStmt],
     [$.arrayDims, $.lValue],
+    [$.typeIde, $.subinterfaceDef],
 
   ]
 

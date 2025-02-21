@@ -373,7 +373,7 @@ endmodule
                                   (rValue
                                     (expression
                                       (exprPrimary
-                                        (identifier)))))))
+                                        (boolLiteral)))))))
                             (fsmStmt
                               (whileFsmStmt
                                 (expression

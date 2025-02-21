@@ -276,7 +276,7 @@ endpackage
                         (identifier)
                         (expression
                           (exprPrimary
-                            (identifier))))
+                            (boolLiteral))))
                       (memberBind
                         (identifier)
                         (expression
@@ -295,13 +295,13 @@ endpackage
                 (typePrimary
                   (typeNat
                     (decDigits))))
-              (Identifier))
+              (identifier))
             (unionMember
               (type
                 (typePrimary
                   (typeNat
                     (decDigits))))
-              (Identifier))
+              (identifier))
             (unionMember
               (subStruct
                 (structMember
@@ -316,7 +316,7 @@ endpackage
                       (typeNat
                         (decDigits))))
                   (identifier)))
-              (Identifier))
+              (identifier))
             (typeDefType
               (typeIde
                 (identifier))))))
@@ -325,75 +325,75 @@ endpackage
           (typedefEnum
             (typedefEnumElements
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier))
+                (identifier))
               (typedefEnumElement
-                (Identifier)))
-            (Identifier)
+                (identifier)))
+            (identifier)
             (derives
               (typeclassIde
-                (Identifier))
+                (identifier))
               (typeclassIde
-                (Identifier))))))
+                (identifier))))))
       (comment)
       (comment)
       (packageStmt
@@ -469,7 +469,7 @@ endpackage
                       (typeIde
                         (identifier))))
                   (identifier)))
-              (Identifier))
+              (identifier))
             (unionMember
               (subStruct
                 (structMember
@@ -484,7 +484,7 @@ endpackage
                       (typeIde
                         (identifier))))
                   (identifier)))
-              (Identifier))
+              (identifier))
             (unionMember
               (subStruct
                 (structMember
@@ -499,7 +499,7 @@ endpackage
                       (typeIde
                         (identifier))))
                   (identifier)))
-              (Identifier))
+              (identifier))
             (unionMember
               (subStruct
                 (structMember
@@ -514,15 +514,15 @@ endpackage
                       (typeIde
                         (identifier))))
                   (identifier)))
-              (Identifier))
+              (identifier))
             (unionMember
-              (Identifier))
+              (identifier))
             (typeDefType
               (typeIde
                 (identifier)))
             (derives
               (typeclassIde
-                (Identifier))))))
+                (identifier))))))
       (packageStmt
         (functionDef
           (functionProto
@@ -556,7 +556,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier)
+                            (identifier)
                             (memberBind
                               (identifier)
                               (expression
@@ -585,7 +585,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier)
+                            (identifier)
                             (memberBind
                               (identifier)
                               (expression
@@ -614,7 +614,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier)
+                            (identifier)
                             (memberBind
                               (identifier)
                               (expression
@@ -638,7 +638,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier)
+                            (identifier)
                             (memberBind
                               (identifier)
                               (expression
@@ -662,7 +662,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier)
+                            (identifier)
                             (memberBind
                               (identifier)
                               (expression
@@ -691,7 +691,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier)
+                            (identifier)
                             (memberBind
                               (identifier)
                               (expression
@@ -715,7 +715,7 @@ endpackage
                       (expression
                         (exprPrimary
                           (taggedUnionExpr
-                            (Identifier))))))))))
+                            (identifier))))))))))
           (identifier)))
       (packageStmt
         (interfaceDecl
@@ -748,8 +748,7 @@ endpackage
           (attributeInstances
             (attributeInstance
               (attrSpec
-                (attrName
-                  (identifier)))))
+                (identifier))))
           (moduleProto
             (identifier)
             (moduleFormalArgs
@@ -848,7 +847,7 @@ endpackage
                         (identifier))
                       (expression
                         (exprPrimary
-                          (identifier)))))))))
+                          (boolLiteral)))))))))
           (moduleStmt
             (varDeclDo
               (type
@@ -868,7 +867,7 @@ endpackage
                         (identifier))
                       (expression
                         (exprPrimary
-                          (identifier)))))))))
+                          (boolLiteral)))))))))
           (comment)
           (moduleStmt
             (varDeclDo
@@ -1076,7 +1075,7 @@ endpackage
                             (identifier))
                           (expression
                             (exprPrimary
-                              (identifier)))
+                              (boolLiteral)))
                           (expression
                             (exprPrimary
                               (identifier)))
@@ -1197,7 +1196,7 @@ endpackage
                             (identifier))
                           (expression
                             (exprPrimary
-                              (identifier)))
+                              (boolLiteral)))
                           (expression
                             (exprPrimary
                               (identifier)))
@@ -1322,7 +1321,7 @@ endpackage
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))))
+                        (boolLiteral))))))))
           (moduleStmt
             (methodDef
               (type
@@ -1341,8 +1340,7 @@ endpackage
           (attributeInstances
             (attributeInstance
               (attrSpec
-                (attrName
-                  (identifier)))))
+                (identifier))))
           (moduleProto
             (identifier))
           (moduleStmt
@@ -1364,7 +1362,7 @@ endpackage
                         (identifier))
                       (expression
                         (exprPrimary
-                          (identifier)))))))))
+                          (boolLiteral)))))))))
           (moduleStmt
             (varDeclDo
               (type
@@ -1416,7 +1414,7 @@ endpackage
                 (expression
                   (exprPrimary
                     (taggedUnionExpr
-                      (Identifier)
+                      (identifier)
                       (memberBind
                         (identifier)
                         (expression
@@ -1484,7 +1482,7 @@ endpackage
                   (rValue
                     (expression
                       (exprPrimary
-                        (identifier))))))))
+                        (boolLiteral))))))))
           (moduleStmt
             (rule
               (identifier)

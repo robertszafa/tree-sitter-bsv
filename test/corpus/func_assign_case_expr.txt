@@ -40,7 +40,7 @@ endfunction: f
                       (identifier)))
                   (expression
                     (exprPrimary
-                      (identifier)))
+                      (boolLiteral)))
                   (expression
                     (exprPrimary
                       (intLiteral
@@ -49,7 +49,7 @@ endfunction: f
                             (decDigits))))))
                   (expression
                     (exprPrimary
-                      (identifier)))
+                      (boolLiteral)))
                   (expression
                     (exprPrimary
                       (intLiteral
