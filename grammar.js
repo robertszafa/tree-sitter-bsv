@@ -882,7 +882,9 @@ module.exports = grammar({
     ),
 
     interfaceExpr: $ => prec.left(seq(
-      'interface', $.identifier, ';',
+      // NOTE: We make the semicolon after the interface identifier optional.
+      //       This is contrary to spec, but matches the behaviour of the bsc compiler.
+      'interface', $.identifier, optional(';'),
         repeat($.interfaceStmt), 
       'endinterface', optseq(':', $.identifier)
     )),
@@ -1154,6 +1156,8 @@ module.exports = grammar({
     [$.expressionStmt, $.functionBodyStmt],
     [$.arrayDims, $.lValue],
     [$.typeIde, $.subinterfaceDef],
+    [$.typeIde, $.subinterfaceDef, $.interfaceExpr],
+
 
   ]
 
