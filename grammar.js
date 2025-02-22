@@ -559,6 +559,14 @@ module.exports = grammar({
 
     // ================================================================
     // sec 9 Variable declarations and statements
+    // NOTE: We changed the rules significantly compared to the spec to
+    //       closer match the behaviour of the bsc compiler (e.g., bsc allows
+    //       lValues to be returned from a function, and has a tuple bind syntax
+    //       missing from the spec), and to work around small ommisions in the spec
+    //       (e.g., the spec forgets to require a semicolon at the end of a register
+    //       write).
+    //       The biggest change we do is to add an rValue rule. We also move some of the
+    //       token matching from other rules to the lValue rule, where this makes sense.
 
     varDecl: $ => choice(
       prec.left(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
@@ -571,13 +579,10 @@ module.exports = grammar({
         ')', ';')
       ),
     ),
-
     varInit: $ => prec.left(seq(
       // NOTE: Contrary to the spec, we allow an lValue here, not just an identifier.
-      $.lValue, optional($.arrayDims), optseq('=', $.expression)
-    )),
-    arrayDims: $ => prec.left(seq(
-      '[', $.expression, ']', repeatseq('[', $.expression, ']')
+      //       The lValue arleady takes care of optional arrayIndexes.
+      $.lValue, optseq('=', $.expression)
     )),
 
     // Variable assignment. Note that we use rValue instead of expression.
@@ -590,15 +595,24 @@ module.exports = grammar({
     ),
     varDeclDo: $ => prec.left(seq($.type, $.identifier, '<-', $.rValue)),
     varDo: $ => prec.left(seq($.identifier, '<-', $.rValue)),
-
-    lValue: $ => choice(
-      $.identifier, 
-      // NOTE: The spec is missing this.
-      $.tupleBind,
-      prec.right(seq($.lValue, '.', $.identifier)),
-      prec.right(seq($.lValue, '[', $.expression, ']')),
-      prec.right(seq($.lValue, '[', $.expression, ':', $.expression, ']'))
+    
+    regWrite: $ => choice(
+      // NOTE: The lValue rule already takes care of the different ways a register
+      //       lValue can be accessed.
+      prec.left(seq($.lValue, '<=', $.rValue)),
     ),
+
+    lValue: $ => prec.left(choice(
+      $.identifier, 
+      // NOTE: The spec is missing tupleBind, and a function call that can return an lValue.
+      $.tupleBind,
+      $.functionCall,
+      prec.left(seq($.lValue, '.', $.identifier)),
+      prec.left(seq($.lValue, $.arrayIndexes)),
+      prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']')),
+      prec.left(seq('(', $.expression, ')')),
+    )),
+    arrayIndexes: $ => prec.right(repeat1(seq('[', $.expression, ']'))),
 
     // NOTE: This rule does not exist in the language spec, but we add it here
     //       because we also allow a caseExpr to appear here, which the spec 
@@ -613,18 +627,6 @@ module.exports = grammar({
     tupleBind: $ => prec.left(seq(
       '{', choice($.identifier, '.*'), repeatseq(',', choice($.identifier, '.*')), '}'
     )),
-    
-    regWrite: $ => choice(
-      // NOTE: Spec is missing semicolon. regWrite could be without one, 
-      //       relying on super rules to add one, but this is not the approach
-      //       taken with other rules in the spec, e.g., varDo.
-      prec.left(seq($.lValue, '<=', $.rValue)),
-      prec.left(seq('(', $.expression, ')', '<=', $.rValue)),
-      prec.left(seq($.lValue, $.arrayIndexes, '<=', $.rValue)),
-      prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']', '<=', $.rValue)),
-      prec.left(seq($.lValue, '.', $.identifier, '<=', $.rValue)),
-    ),
-    arrayIndexes: $ => repeat1(seq('[', $.expression, ']')),
     
     //
     // ================================================================
@@ -1139,25 +1141,25 @@ module.exports = grammar({
     [$.exprPrimary, $.actionStmt],
     [$.expressionStmt, $.actionStmt],
     [$.expressionStmt, $.actionValueStmt],
-    [$.lValue, $.arrayIndexes],
 
     [$.exprOrCondPattern, $.exprOrCondPattern],
     [$.exprPrimary, $.structExpr],
     [$.exprOrCondPattern, $.exprPrimary],
-    [$.lValue, $.actionStmt],
     [$.actionStmt, $.fsmStmt],
-    [$.lValue, $.varDo],
-    [$.lValue, $.varDeclDo],
     [$.typeIde, $.structExpr],
     [$.tupleBind, $.exprPrimary],
     [$.moduleStmt, $.expression],
     [$.moduleStmt, $.exprPrimary],
     [$.exprPrimary, $.actionValueStmt],
     [$.expressionStmt, $.functionBodyStmt],
-    [$.arrayDims, $.lValue],
     [$.typeIde, $.subinterfaceDef],
     [$.typeIde, $.subinterfaceDef, $.interfaceExpr],
-
+    [$.typeNat, $.bitWidth],
+    [$.typeIde, $.interfaceExpr],
+    [$.typeIde, $.varDecl, $.exprPrimary],
+    [$.typeIde, $.moduleInst, $.varDecl, $.exprPrimary],
+    [$.typeIde, $.moduleInst, $.exprPrimary],
+    [$.rulesExpr],
 
   ]
 
