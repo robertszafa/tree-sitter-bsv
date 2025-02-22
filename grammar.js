@@ -890,7 +890,8 @@ module.exports = grammar({
     rulesExpr: $ => prec.left(seq(
       optional($.attributeInstances), 
       'rules', optseq(':', $.identifier), 
-        $.rulesStmt,
+        // NOTE: The spec wrongly allows only one rule.
+        repeat1($.rulesStmt),
       'endrules', optseq(':', $.identifier)
       )),
     rulesStmt: $ => choice(
