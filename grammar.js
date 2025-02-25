@@ -289,8 +289,8 @@ module.exports = grammar({
       $.methodDef,
       $.subinterfaceDef,
       $.rule, 
-      $.varDo,
-      $.varDeclDo,
+      // NOTE: We do not allow varDo/varDeclDo here. Their syntax is covered by moduleInst.
+      // $.varDo, $.varDeclDo,
       // NOTE: The spec {module, function, action, actionValue, etc}Stmt rules 
       //       are missing semicolons in some places.
       prec.left(seq($.functionCall, ';')),
