@@ -536,13 +536,18 @@ module.exports = grammar({
       $.typeIde, 
       prec.left(seq('(', $.typeIde, repeatseq(',', $.typeIde), ')'))
     ),
-    overloadedDef: $ => choice(
+    overloadedDef: $ => prec.right(choice(
       // NOTE: We removed the semicolon from the functionProto rule
       //       to allow functionProtos to appear in method/function arguments.
-      seq($.functionProto, ';'),
+      //       We also allow functionDefs here, contrary to spec, but same as bsc.
+      $.functionDef,
+      prec.left(seq($.functionProto, ';')),
+      // NOTE: A typeclass can contain module definitions and prototypes. 
+      //       This is contrary to spec but same as bsc.
+      $.moduleDef, 
+      $.moduleProto, 
       $.varDecl,
-      $.moduleProto, // NOTE: missing moduleProto?
-    ),
+    )),
 
     // Instance declarations
     typeclassInstanceDef: $ => prec.left(seq(
