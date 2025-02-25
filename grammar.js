@@ -551,6 +551,8 @@ module.exports = grammar({
 
     // Instance declarations
     typeclassInstanceDef: $ => prec.left(seq(
+      // NOTE: This is missing from the spec, but bsc allows attributes here.
+      optional($.attributeInstances),
       'instance', $.typeclassIde, '#', '(', $.type, repeatseq(',', $.type), ')',
         optional($.provisos), ';',
           // NOTE: Spec has an erronous semicolon after varAssign.
@@ -1028,14 +1030,12 @@ module.exports = grammar({
     // ================================================================
     // sec 14 Guiding the compiler with attributes
 
-    attributeInstances: $ => prec.left(seq(
-      $.attributeInstance, repeat($.attributeInstance)
-    )),
-    attributeInstance: $ => prec.left(seq(
+    attributeInstances: $ => prec.left(repeat1($.attributeInstance)),
+    attributeInstance: $ => prec.right(seq(
       '(*', $.attrSpec, repeatseq(',', $.attrSpec), '*)'
     )),
     // Could be maybe more specific here than just "identifier"; maybe list all the possible attr names.
-    attrSpec: $ => seq($.identifier, optseq('=', $.expression)),
+    attrSpec: $ => prec.left(seq($.identifier, optseq('=', $.expression))),
     
 
     // ============================================================
