@@ -198,12 +198,24 @@ module.exports = grammar({
       )
     )),
 
-    typePrimary: $ => choice(
-      seq($.typeIde, optseq('#', '(', $.type, repeatseq(',', $.type), ')')),
+    typePrimary: $ => prec.right(choice(
+      prec.right(seq($.typeIde, optseq('#', '(', $.type, repeatseq(',', $.type), ')'))),
       $.typeNat,
       //  Only [N:0] bit vectors supported
-      seq('bit', optseq('[', $.typeNat, ':', '0', ']'))
-    ),
+      seq('bit', optseq('[', $.typeNat, ':', '0', ']')),
+      $.functionType,
+    )),
+
+    functionType: $ => prec.right(seq(
+      'function', $.type, choice($.identifier, seq('\\', $.binop)),
+        optseq('(', optional($.functionFormals), ')')
+    )),
+    // NOTE: subFunctions use type inference in bsc, which means the return and 
+    //       argument types can be ommited.
+    subFunctionType: $ => prec.right(seq(
+      'function', optional($.type), $.identifier,
+        optseq('(', optional($.subFunctionFormals), ')')
+    )),
 
     // NOTE: To quote from BSV reference manual: Data types in BSV are case 
     // sensitive. The first character of a type is almost always uppercase, the
@@ -660,18 +672,42 @@ module.exports = grammar({
     //       to appear in function/method arguments.
     //       Also, we have optional parens, contrary to spec?
     functionProto: $ => prec.left(seq(
-      'function', $.type, choice($.identifier, seq('\\', $.binop)),
-          optseq('(', optional($.functionFormals), ')'), 
-          optional($.provisos), optional($.expression)
+      $.functionType, optional($.provisos), optional($.expression)
     )),
     functionFormals: $ => prec.left(seq(
       $.functionFormal, repeatseq(',', $.functionFormal)
     )),
     functionFormal: $ => choice(
-      // NOTE: A function can take another function as parameter.
       prec.left(seq($.type, $.identifier)),
+      // NOTE: A function can take another function as parameter.
       $.functionProto
     ),
+
+    // NOTE: subFunctions use type inference in bsc, which means the return and 
+    //       argument types can be ommited. Hence separate rules for sub functions.
+    subFunctionDef: $ => choice(
+      prec.left(seq(
+        $.subFunctionProto, ';',
+          $.functionBody, 
+        'endfunction', optseq(':', $.identifier)
+      )),
+      prec.left(seq(
+        $.subFunctionProto, '=', $.rValue
+      )),
+    ),
+    subFunctionProto: $ => prec.left(seq(
+      $.subFunctionType, optional($.provisos), optional($.expression)
+    )),
+    subFunctionFormals: $ => prec.left(seq(
+      $.subFunctionFormal, repeatseq(',', $.subFunctionFormal)
+    )),
+    subFunctionFormal: $ => prec.right(choice(
+      // NOTE: In subfunctions bsc can do type inference of arguments/return types.
+      $.identifier,
+      prec.left(seq($.type, $.identifier)),
+      // NOTE: A function can take another function as parameter.
+      $.functionProto
+    )),
 
     functionBody: $ => choice(
       $.actionBlock,
@@ -683,7 +719,9 @@ module.exports = grammar({
       $.returnStmt, 
       $.varDecl, 
       $.varAssign, 
-      $.functionDef,
+      // NOTE: We created a a new subFunctionDef rule, because the bsc compiler
+      //       treats function definitions inside other functions differently.
+      $.subFunctionDef,
       $.moduleDef, 
       ctxtBeginEndStmt($, $.functionBodyStmt),
       ctxtIf($, $.functionBodyStmt),
@@ -1165,6 +1203,9 @@ module.exports = grammar({
     [$.typeIde, $.moduleInst, $.varDecl, $.exprPrimary],
     [$.typeIde, $.moduleInst, $.exprPrimary],
     [$.rulesExpr],
+    [$.subFunctionType, $.typeIde],
+    [$.functionType, $.subFunctionType],
+    [$.functionFormal, $.subFunctionFormal],
 
   ]
 
