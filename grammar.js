@@ -204,6 +204,8 @@ module.exports = grammar({
       //  Only [N:0] bit vectors supported
       seq('bit', optseq('[', $.typeNat, ':', '0', ']')),
       $.functionType,
+      // NOTE: A type can don't care in bsc.
+      '?',
     )),
 
     functionType: $ => prec.right(seq(
@@ -327,23 +329,16 @@ module.exports = grammar({
     // sec 5.4 Module and interface instantiation
 
     // sec 5.4.1 Short form instantiation
-    moduleInst: $ => choice(
-      prec.left(seq(
-        optional($.attributeInstances),
-        // NOTE: Contrary to spec, we make the type optional, since
-        //       we could be assigning to an already declared Vector for example.
-        //       We also do s/identifier/lValue to allow asigning to array indexes,
-        //       or to allow things like concurrent registers.
-        optional($.type), $.lValue, '<-', $.moduleApp, ';'
-      )),
-      // Long Form
-      prec.left(seq(
-        optional($.attributeInstances), 
-        $.type, $.identifier, '(', ')', ';', 
-        $.moduleApp2, $.identifier, '(', optional($.moduleActualArgs), ')', ';'
-      ),
-      )
-    ),
+    // NOTE: We do not provide rules for sec 5.4.2 Long form instantiation (depractaed),
+    //       because this syntax is covered by the varDecl rule.
+    moduleInst: $ => prec.left(seq(
+      optional($.attributeInstances),
+      // NOTE: Contrary to spec, we make the type optional, since
+      //       we could be assigning to an already declared Vector for example.
+      //       We also do s/identifier/lValue to allow asigning to array indexes,
+      //       or to allow things like concurrent registers.
+      optional($.type), $.lValue, '<-', $.moduleApp, ';'
+    )),
     moduleApp: $ => prec.left(seq(
       // NOTE: Parens are optional in the bsc implementation.
       $.identifier, optseq('(', 
@@ -354,16 +349,6 @@ module.exports = grammar({
       $.expression,
       seq('clocked_by', $.expression),
       seq('reset_by', $.expression)
-    ),
-
-    // sec 5.4.2 Long form instantiation (depractaed)
-    moduleApp2: $ => seq(
-      $.identifier, optseq('#', 
-        '(', $.moduleActualParam,repeatseq(',', $.moduleActualParam)), ')'
-    ),
-    moduleActualParam: $ => $.expression,
-    moduleActualArgs: $ => seq(
-      $.moduleActualParamArg, repeatseq(',', $.moduleActualParamArg)
     ),
 
     // ============================================================
@@ -587,7 +572,7 @@ module.exports = grammar({
     //       The biggest change we do is to add an rValue rule. We also move some of the
     //       token matching from other rules to the lValue rule, where this makes sense.
 
-    varDecl: $ => choice(
+    varDecl: $ => prec.right(choice(
       prec.left(seq($.type, $.varInit, repeatseq(',', $.varInit), ';')),
       prec.left(seq('let', $.identifier, '=', $.rValue)),
       // NOTE: The spec is missing the below rule to allow declarations like:
@@ -597,7 +582,7 @@ module.exports = grammar({
           optseq($.expression, repeatseq(',', $.expression)),
         ')', ';')
       ),
-    ),
+    )),
     varInit: $ => prec.left(seq(
       // NOTE: Contrary to the spec, we allow an lValue here, not just an identifier.
       //       The lValue arleady takes care of optional arrayIndexes.
@@ -1200,12 +1185,11 @@ module.exports = grammar({
     [$.typeNat, $.bitWidth],
     [$.typeIde, $.interfaceExpr],
     [$.typeIde, $.varDecl, $.exprPrimary],
-    [$.typeIde, $.moduleInst, $.varDecl, $.exprPrimary],
-    [$.typeIde, $.moduleInst, $.exprPrimary],
     [$.rulesExpr],
     [$.subFunctionType, $.typeIde],
     [$.functionType, $.subFunctionType],
     [$.functionFormal, $.subFunctionFormal],
+    [$.typePrimary, $.exprPrimary],
 
   ]
 
