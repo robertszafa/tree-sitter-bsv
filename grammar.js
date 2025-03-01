@@ -889,7 +889,7 @@ module.exports = grammar({
     //       We also set a higher precedence for method calls to parse 
     //       "identifierA.identifierB" as a methodCall.
     functionCall: $ => prec.left(40, seq(
-      $.exprPrimary, 
+      choice($.exprPrimary, '\\∘'),
       '(', 
         optseq($.expression, repeatseq(',', $.expression)),
       ')'
