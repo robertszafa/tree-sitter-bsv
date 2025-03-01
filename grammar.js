@@ -557,7 +557,9 @@ module.exports = grammar({
       'instance', $.typeclassIde, '#', '(', $.type, repeatseq(',', $.type), ')',
         optional($.provisos), ';',
           // NOTE: Spec has an erronous semicolon after varAssign.
-          repeat(choice($.varAssign, $.functionDef, $.moduleDef)),
+          //       We also use subFunctionDef rule, because bsc has type
+          //       inference inside instance blocks.
+          repeat(choice($.varAssign, $.subFunctionDef, $.moduleDef)),
       'endinstance', optseq(':', $.typeclassIde)
     )),
 
@@ -604,11 +606,9 @@ module.exports = grammar({
     varDeclDo: $ => prec.left(seq($.type, $.identifier, '<-', $.rValue)),
     varDo: $ => prec.left(seq($.identifier, '<-', $.rValue)),
     
-    regWrite: $ => choice(
-      // NOTE: The lValue rule already takes care of the different ways a register
-      //       lValue can be accessed.
-      prec.left(seq($.lValue, '<=', $.rValue)),
-    ),
+    // NOTE: No alternatives, since the lValue rule already takes care of the 
+    //       different ways a register lValue can be accessed.
+    regWrite: $ => prec.left(seq($.lValue, '<=', $.rValue)),
 
     lValue: $ => prec.left(choice(
       $.identifier, 
@@ -1191,15 +1191,14 @@ module.exports = grammar({
     [$.expressionStmt, $.functionBodyStmt],
     [$.typeIde, $.subinterfaceDef],
     [$.typeIde, $.subinterfaceDef, $.interfaceExpr],
-    [$.typeNat, $.bitWidth],
     [$.typeIde, $.interfaceExpr],
-    [$.typeIde, $.varDecl, $.exprPrimary],
-    [$.rulesExpr],
     [$.subFunctionType, $.typeIde],
     [$.functionType, $.subFunctionType],
     [$.functionFormal, $.subFunctionFormal],
     [$.typePrimary, $.exprPrimary],
     [$.expression, $.bitSelect],
+    [$.typeIde, $.lValue],
+    [$.typeIde, $.lValue, $.exprPrimary],
 
   ]
 
