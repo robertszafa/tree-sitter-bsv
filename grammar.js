@@ -192,6 +192,10 @@ module.exports = grammar({
       optseq($.identifier, '::'), 
       choice(
         $.typePrimary, 
+        // NOTE: A type can have optional parentheses around.
+        prec.left(seq(
+          '(', $.typePrimary, ')'
+        )),
         prec.left(seq(
           $.typePrimary, '(', $.type, repeatseq(',', $.type), ')'
         ))
@@ -610,7 +614,10 @@ module.exports = grammar({
       $.identifier, 
       // NOTE: The spec is missing tupleBind, and a function call that can return an lValue.
       $.tupleBind,
-      $.functionCall,
+      // NOTE: We use identifier for function name in lValues, instead of exprPrimary.
+      field('lValueFunctionCall', prec.left(seq(
+        $.identifier, '(', optseq($.expression, repeatseq(',', $.expression)), ')'
+      ))),
       prec.left(seq($.lValue, '.', $.identifier)),
       prec.left(seq($.lValue, $.arrayIndexes)),
       prec.left(seq($.lValue, '[', $.expression, ':', $.expression, ']')),
@@ -803,6 +810,8 @@ module.exports = grammar({
       $.rulesExpr,
       $.seqFsmStmt,
       $.parFsmStmt,
+      // NOTE: Apparrently, bsc allows type hints with the below syntax.
+      prec.right(seq($.type, "'", $.expression)),
     ),
 
     bitConcat: $ => seq(
@@ -1190,6 +1199,7 @@ module.exports = grammar({
     [$.functionType, $.subFunctionType],
     [$.functionFormal, $.subFunctionFormal],
     [$.typePrimary, $.exprPrimary],
+    [$.expression, $.bitSelect],
 
   ]
 
