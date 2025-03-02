@@ -175,8 +175,8 @@ module.exports = grammar({
       $.typeclassDef,
       $.typeclassInstanceDef,
       // TODO: Add externModuleImport, sec. 15 from BSV lang ref
-      // $.externModuleImport, 
-      // NOTE: missing in the spec:
+      $.externModuleImport, 
+      // NOTE: externCImport was missing in the spec:
       $.externCImport, 
     ),
 
@@ -1071,12 +1071,118 @@ module.exports = grammar({
     
 
     // ============================================================
-    // TODO: sec 15 Embedding RTL in a BSV design
-    // externModuleImport ::= import "BVI" [ identifier = ] moduleProto
-    //                         { moduleStmt }
-    //                         { importBVIStmt }
-    //                        endmodule [ : identifier ]
+    // sec 15 Embedding RTL in a BSV design
+    externModuleImport: $ => seq(
+      'import', '"BVI"', optseq($.identifier, '='), $.moduleProto,
+        repeat($.moduleStmt),
+        repeat($.importBVIStmt),
+      'endmodule', optseq(':', $.identifier)
+      ),
 
+    importBVIStmt: $ => choice(
+      $.parameterBVIStmt,
+      $.methodBVIStmt,
+      $.portBVIStmt,
+      $.inputClockBVIStmt,
+      $.defaultClockBVIStmt,
+      $.outputClockBVIStmt,
+      $.inputResetBVIStmt,
+      $.defaultResetBVIStmt,
+      // NOTE: This is missing from the spec.
+      // $.noResetBVIStmt,
+      $.outputResetBVIStmt,
+      $.ancestorBVIStmt,
+      $.sameFamilyBVIStmt,
+      $.scheduleBVIStmt,
+      $.pathBVIStmt,
+      $.interfaceBVIStmt,
+      $.inoutBVIStmt,
+    ),
+
+    parameterBVIStmt: $ => seq('parameter', $.identifier, '=', $.expression, ';'),
+
+    methodBVIStmt: $ => seq(
+      'method', optional($.portId), $.identifier, optseq('(', optseq($.portId, repeatseq(',', $.portId)), ')'),
+        optseq('enable', '(', $.portId, ')'),
+        optseq('ready', '(', $.portId, ')'),
+        optseq('clocked_by', '(', $.clockId, ')'),
+        optseq('reset_by', '(', $.resetId, ')'),
+      ';'
+    ),
+
+    portBVIStmt: $ => seq(
+      'port', $.identifier, 
+        optseq('clocked_by', '(', $.clockId, ')'),
+        optseq('reset_by', '(', $.resetId, ')'), '=', $.expression, ';'
+    ),
+
+    inputClockBVIStmt: $ => seq(
+      'input_clock', optional($.identifier), '(', optional($.portsDef), ')', 
+      choice('=', '<-'), $.expression, ';'
+    ),
+    portsDef: $ => seq(
+      $.portId, optseq(',', optional($.attributeInstances), $.portId)
+    ),
+
+    defaultClockBVIStmt: $ => prec.right(choice(
+      seq('default_clock', $.identifier, ';'),
+      seq('default_clock', optional($.identifier), 
+          optseq('(', $.portsDef, ')'), optseq(choice('=', '<-'), $.expression), ';')
+    )),
+
+    outputClockBVIStmt: $ => seq('output_clock', $.identifier, '(', optional($.portsDef), ')', ';'),
+
+    inputResetBVIStmt: $ => seq(
+      'input_reset', optional($.identifier), optseq('(', $.portId, ')'), 
+                     optseq('clocked_by', '(', $.clockId, ')'), 
+      choice('=', '<-'), $.expression, ';'
+    ),
+    
+    defaultResetBVIStmt: $ => choice(
+      seq('default_reset', $.identifier, ';'),
+      seq('default_reset', optional($.identifier), optseq('(', $.portId, ')'), 
+          optseq('clocked_by', '(', $.clockId, ')'), optseq('=', $.expression), ';')
+    ),
+
+    outputResetBVIStmt: $ => seq(
+      'output_reset', $.identifier, 
+                      optseq('(', $.portId, ')'), 
+                      optseq('clocked_by', '(', $.clockId, ')'), ';'
+    ),
+
+    ancestorBVIStmt: $ => seq('ancestor', '(', $.clockId, ',', $.clockId, ')', ';'),
+    sameFamilyBVIStmt: $ => seq('same_family', '(', $.clockId, ',', $.clockId, ')', ';'),
+
+    scheduleBVIStmt: $ => seq(
+      'schedule', '(', $.identifier, repeatseq(',', $.identifier), ')', $.operatorId,
+      '(', $.identifier, repeatseq(',', $.identifier), ')', ';'
+    ),
+    operatorId: $ => choice('CF', 'SB', 'SBR', 'C'),
+    
+    pathBVIStmt: $ => seq('path', '(', $.portId, ',', $.portId, ')', ';'),
+
+    interfaceBVIStmt: $ => seq(
+      'interface', $.typeDefType, ';',
+        repeat($.interfaceBVIMembDecl),
+      'endinterface', optseq(':', $.typeIde)
+    ),
+
+    interfaceBVIMembDecl: $ => choice(
+      $.methodBVIStmt, 
+      seq($.interfaceBVIStmt, ';')
+    ),
+
+    inoutBVIStmt: $ => choice(
+      seq('inout', $.portId, optseq('clocked_by', '(', $.clockId, ')'),
+          optseq('reset_by', '(', $.resetId, ')'), '=', $.expression, ';'),
+      seq('ifc_inout', $.identifier, '(', $.inoutId, ')', optseq('clocked_by', '(', $.clockId, ')'),
+          optseq('reset_by', '(', $.resetId, ')'), ';')
+    ),
+
+    portId: $ => $.identifier,
+    clockId: $ => $.identifier,
+    resetId: $ => $.identifier,
+    inoutId: $ => $.identifier,
 
     // ============================================================
     // sec 16 Embedding C in a BSV Design
@@ -1199,6 +1305,10 @@ module.exports = grammar({
     [$.expression, $.bitSelect],
     [$.typeIde, $.lValue],
     [$.typeIde, $.lValue, $.exprPrimary],
+    [$.typeIde, $.methodDef, $.methodBVIStmt],
+    [$.typeIde, $.portId],
+    [$.methodFormal, $.portId],
+    [$.type, $.typeFormal],
 
   ]
 
