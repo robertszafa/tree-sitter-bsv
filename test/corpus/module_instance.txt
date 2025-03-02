@@ -41,9 +41,10 @@ endmodule
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (identifier))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (identifier)))))
               (moduleApp
                 (identifier)
                 (moduleActualParamArg
@@ -59,8 +60,9 @@ endmodule
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (identifier))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (identifier)))))
               (moduleApp
                 (identifier)))))))

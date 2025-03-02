@@ -541,7 +541,7 @@ endpackage: Mergesort
                           (decDigits)))))))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -550,16 +550,15 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (comment)
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -568,14 +567,13 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -584,11 +582,10 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (comment)
           (moduleStmt
@@ -678,9 +675,10 @@ endpackage: Mergesort
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (identifier))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (identifier)))))
               (moduleApp
                 (identifier)
                 (moduleActualParamArg
@@ -696,9 +694,10 @@ endpackage: Mergesort
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (identifier))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (identifier)))))
               (moduleApp
                 (identifier))))
           (moduleStmt
@@ -706,9 +705,10 @@ endpackage: Mergesort
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (identifier))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (identifier)))))
               (moduleApp
                 (identifier))))
           (moduleStmt
@@ -716,9 +716,10 @@ endpackage: Mergesort
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (identifier))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (identifier)))))
               (moduleApp
                 (identifier))))
           (moduleStmt
@@ -909,9 +910,10 @@ endpackage: Mergesort
                         (lValue
                           (lValue
                             (identifier))
-                          (expression
-                            (exprPrimary
-                              (identifier))))
+                          (arrayIndexes
+                            (expression
+                              (exprPrimary
+                                (identifier)))))
                         (rValue
                           (expression
                             (exprPrimary
@@ -999,12 +1001,16 @@ endpackage: Mergesort
                         (exprPrimary
                           (identifier)))))
                   (actionStmt
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (identifier)))))
+                    (varDecl
+                      (type
+                        (typePrimary
+                          (typeIde
+                            (identifier))))
+                      (varInit
+                        (lValue
+                          (expression
+                            (exprPrimary
+                              (identifier)))))))
                   (actionStmt
                     (systemTaskStmt
                       (displayTaskName)
@@ -1021,12 +1027,16 @@ endpackage: Mergesort
                         (exprPrimary
                           (identifier)))))
                   (actionStmt
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (identifier)))))
+                    (varDecl
+                      (type
+                        (typePrimary
+                          (typeIde
+                            (identifier))))
+                      (varInit
+                        (lValue
+                          (expression
+                            (exprPrimary
+                              (identifier)))))))
                   (actionStmt
                     (systemTaskStmt
                       (displayTaskName)
@@ -1037,7 +1047,7 @@ endpackage: Mergesort
           (comment)
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1050,19 +1060,17 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (identifier)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (identifier)))))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1071,14 +1079,13 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1087,13 +1094,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1102,14 +1108,13 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1118,13 +1123,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1149,258 +1153,97 @@ endpackage: Mergesort
                         (typePrimary
                           (typeIde
                             (identifier))))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
-          (moduleStmt
-            (functionCall
-              (exprPrimary
+              (lValue
                 (identifier))
-              (expression
-                (exprPrimary
-                  (seqFsmStmt
-                    (fsmStmt
-                      (whileFsmStmt
-                        (expression
-                          (exprPrimary
-                            (boolLiteral)))
-                        (loopBodyFsmStmt
-                          (fsmStmt
-                            (seqFsmStmt
+              (moduleApp
+                (identifier))))
+          (moduleStmt
+            (varDecl
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))))
+              (varInit
+                (lValue
+                  (expression
+                    (exprPrimary
+                      (seqFsmStmt
+                        (fsmStmt
+                          (whileFsmStmt
+                            (expression
+                              (exprPrimary
+                                (boolLiteral)))
+                            (loopBodyFsmStmt
                               (fsmStmt
-                                (actionStmt
-                                  (actionBlock
+                                (seqFsmStmt
+                                  (fsmStmt
                                     (actionStmt
-                                      (functionCall
-                                        (exprPrimary
-                                          (identifier))
-                                        (expression
-                                          (operatorExpr
-                                            (expression
-                                              (exprPrimary
-                                                (bitSelect
-                                                  (exprPrimary
-                                                    (identifier))
-                                                  (expression
-                                                    (exprPrimary
-                                                      (identifier))))))
-                                            (binop)
-                                            (expression
-                                              (exprPrimary
-                                                (intLiteral
-                                                  (unsizedIntLiteral
-                                                    (decNum
-                                                      (decDigits))))))))))
-                                    (actionStmt
-                                      (regWrite
-                                        (lValue
-                                          (identifier))
-                                        (rValue
-                                          (expression
-                                            (exprPrimary
-                                              (intLiteral
-                                                (unsizedIntLiteral
-                                                  (decNum
-                                                    (decDigits)))))))))
-                                    (actionStmt
-                                      (regWrite
-                                        (lValue
-                                          (identifier))
-                                        (rValue
-                                          (expression
-                                            (exprPrimary
-                                              (bitSelect
-                                                (exprPrimary
-                                                  (identifier))
+                                      (actionBlock
+                                        (actionStmt
+                                          (varDecl
+                                            (type
+                                              (typePrimary
+                                                (typeIde
+                                                  (identifier))))
+                                            (varInit
+                                              (lValue
                                                 (expression
-                                                  (exprPrimary
-                                                    (identifier)))))))))
-                                    (actionStmt
-                                      (regWrite
-                                        (lValue
-                                          (identifier))
-                                        (rValue
-                                          (expression
-                                            (exprPrimary
-                                              (bitSelect
-                                                (exprPrimary
-                                                  (identifier))
-                                                (expression
-                                                  (exprPrimary
-                                                    (identifier))))))))))))
-                              (comment)
-                              (fsmStmt
-                                (whileFsmStmt
-                                  (expression
-                                    (operatorExpr
-                                      (expression
-                                        (exprPrimary
-                                          (identifier)))
-                                      (binop)
-                                      (expression
-                                        (exprPrimary
-                                          (bitSelect
-                                            (exprPrimary
-                                              (identifier))
-                                            (expression
-                                              (exprPrimary
-                                                (identifier))))))))
-                                  (loopBodyFsmStmt
-                                    (fsmStmt
-                                      (seqFsmStmt
-                                        (fsmStmt
-                                          (actionStmt
-                                            (actionBlock
-                                              (actionStmt
-                                                (condPredicate
-                                                  (exprOrCondPattern
+                                                  (operatorExpr
                                                     (expression
-                                                      (operatorExpr
-                                                        (expression
+                                                      (exprPrimary
+                                                        (bitSelect
                                                           (exprPrimary
-                                                            (identifier)))
-                                                        (binop)
-                                                        (expression
-                                                          (exprPrimary
-                                                            (intLiteral
-                                                              (unsizedIntLiteral
-                                                                (decNum
-                                                                  (decDigits))))))))))
-                                                (actionStmt
-                                                  (systemTaskStmt
-                                                    (displayTaskName)
-                                                    (expression
-                                                      (exprPrimary
-                                                        (stringLiteral)))
-                                                    (expression
-                                                      (exprPrimary
-                                                        (identifier)))
-                                                    (expression
-                                                      (exprPrimary
-                                                        (identifier))))))
-                                              (actionStmt
-                                                (regWrite
-                                                  (lValue
-                                                    (identifier))
-                                                  (rValue
+                                                            (identifier))
+                                                          (expression
+                                                            (exprPrimary
+                                                              (identifier))))))
+                                                    (binop)
                                                     (expression
                                                       (exprPrimary
                                                         (intLiteral
                                                           (unsizedIntLiteral
                                                             (decNum
                                                               (decDigits))))))))))))
-                                        (comment)
-                                        (fsmStmt
-                                          (actionStmt
-                                            (expression
-                                              (operatorExpr
-                                                (expression
-                                                  (exprPrimary
-                                                    (identifier)))
-                                                (binop)
-                                                (expression
-                                                  (exprPrimary
-                                                    (bitSelect
-                                                      (exprPrimary
-                                                        (identifier))
-                                                      (expression
-                                                        (exprPrimary
-                                                          (identifier))))))))
-                                            (actionStmt
-                                              (actionBlock
-                                                (actionStmt
-                                                  (functionCall
+                                        (actionStmt
+                                          (regWrite
+                                            (lValue
+                                              (identifier))
+                                            (rValue
+                                              (expression
+                                                (exprPrimary
+                                                  (intLiteral
+                                                    (unsizedIntLiteral
+                                                      (decNum
+                                                        (decDigits)))))))))
+                                        (actionStmt
+                                          (regWrite
+                                            (lValue
+                                              (identifier))
+                                            (rValue
+                                              (expression
+                                                (exprPrimary
+                                                  (bitSelect
                                                     (exprPrimary
-                                                      (methodCall
-                                                        (exprPrimary
-                                                          (identifier))
-                                                        (identifier)))
-                                                    (expression
-                                                      (exprPrimary
-                                                        (functionCall
-                                                          (exprPrimary
-                                                            (identifier))
-                                                          (expression
-                                                            (exprPrimary
-                                                              (identifier)))
-                                                          (expression
-                                                            (exprPrimary
-                                                              (identifier)))
-                                                          (expression
-                                                            (exprPrimary
-                                                              (identifier)))
-                                                          (expression
-                                                            (exprPrimary
-                                                              (identifier))))))))
-                                                (actionStmt
-                                                  (regWrite
-                                                    (lValue
                                                       (identifier))
-                                                    (rValue
-                                                      (expression
-                                                        (operatorExpr
-                                                          (expression
-                                                            (exprPrimary
-                                                              (identifier)))
-                                                          (binop)
-                                                          (expression
-                                                            (exprPrimary
-                                                              (expression
-                                                                (operatorExpr
-                                                                  (expression
-                                                                    (exprPrimary
-                                                                      (identifier)))
-                                                                  (binop)
-                                                                  (expression
-                                                                    (exprPrimary
-                                                                      (intLiteral
-                                                                        (unsizedIntLiteral
-                                                                          (decNum
-                                                                            (decDigits)))))))))))))))))))
-                                        (fsmStmt
-                                          (actionStmt
-                                            (actionBlock
-                                              (comment)
-                                              (actionStmt
-                                                (regWrite
-                                                  (lValue
-                                                    (identifier))
-                                                  (rValue
                                                     (expression
                                                       (exprPrimary
-                                                        (identifier))))))
-                                              (actionStmt
-                                                (regWrite
-                                                  (lValue
-                                                    (identifier))
-                                                  (rValue
+                                                        (identifier)))))))))
+                                        (actionStmt
+                                          (regWrite
+                                            (lValue
+                                              (identifier))
+                                            (rValue
+                                              (expression
+                                                (exprPrimary
+                                                  (bitSelect
+                                                    (exprPrimary
+                                                      (identifier))
                                                     (expression
                                                       (exprPrimary
-                                                        (identifier))))))
-                                              (actionStmt
-                                                (regWrite
-                                                  (lValue
-                                                    (identifier))
-                                                  (rValue
-                                                    (expression
-                                                      (operatorExpr
-                                                        (expression
-                                                          (exprPrimary
-                                                            (identifier)))
-                                                        (binop)
-                                                        (expression
-                                                          (exprPrimary
-                                                            (intLiteral
-                                                              (unsizedIntLiteral
-                                                                (decNum
-                                                                  (decDigits)))))))))))))))))))
-                              (comment)
-                              (fsmStmt
-                                (ifFsmStmt
-                                  (expression
-                                    (exprPrimary
+                                                        (identifier))))))))))))
+                                  (comment)
+                                  (fsmStmt
+                                    (whileFsmStmt
                                       (expression
                                         (operatorExpr
                                           (expression
@@ -1414,66 +1257,157 @@ endpackage: Mergesort
                                                   (identifier))
                                                 (expression
                                                   (exprPrimary
-                                                    (identifier))))))))))
-                                  (fsmStmt
-                                    (actionStmt
-                                      (actionBlock
-                                        (actionStmt
-                                          (condPredicate
-                                            (exprOrCondPattern
-                                              (expression
-                                                (operatorExpr
-                                                  (expression
-                                                    (exprPrimary
-                                                      (identifier)))
-                                                  (binop)
-                                                  (expression
-                                                    (exprPrimary
-                                                      (intLiteral
-                                                        (unsizedIntLiteral
-                                                          (decNum
-                                                            (decDigits))))))))))
-                                          (actionStmt
-                                            (systemTaskStmt
-                                              (displayTaskName)
-                                              (expression
-                                                (exprPrimary
-                                                  (stringLiteral)))
-                                              (expression
-                                                (exprPrimary
-                                                  (identifier))))))
-                                        (actionStmt
-                                          (functionCall
-                                            (exprPrimary
-                                              (methodCall
-                                                (exprPrimary
-                                                  (identifier))
-                                                (identifier)))
-                                            (expression
-                                              (exprPrimary
-                                                (functionCall
-                                                  (exprPrimary
-                                                    (identifier))
-                                                  (expression
-                                                    (exprPrimary
-                                                      (intLiteral
-                                                        (unsizedIntLiteral
-                                                          (decNum
-                                                            (decDigits))))))
-                                                  (expression
-                                                    (exprPrimary
-                                                      (bitSelect
-                                                        (exprPrimary
-                                                          (identifier))
+                                                    (identifier))))))))
+                                      (loopBodyFsmStmt
+                                        (fsmStmt
+                                          (seqFsmStmt
+                                            (fsmStmt
+                                              (actionStmt
+                                                (actionBlock
+                                                  (actionStmt
+                                                    (condPredicate
+                                                      (exprOrCondPattern
+                                                        (expression
+                                                          (operatorExpr
+                                                            (expression
+                                                              (exprPrimary
+                                                                (identifier)))
+                                                            (binop)
+                                                            (expression
+                                                              (exprPrimary
+                                                                (intLiteral
+                                                                  (unsizedIntLiteral
+                                                                    (decNum
+                                                                      (decDigits))))))))))
+                                                    (actionStmt
+                                                      (systemTaskStmt
+                                                        (displayTaskName)
+                                                        (expression
+                                                          (exprPrimary
+                                                            (stringLiteral)))
+                                                        (expression
+                                                          (exprPrimary
+                                                            (identifier)))
                                                         (expression
                                                           (exprPrimary
                                                             (identifier))))))
-                                                  (expression
-                                                    (exprPrimary
-                                                      (identifier)))
-                                                  (expression
-                                                    (exprPrimary
-                                                      (identifier)))))))))))
+                                                  (actionStmt
+                                                    (regWrite
+                                                      (lValue
+                                                        (identifier))
+                                                      (rValue
+                                                        (expression
+                                                          (exprPrimary
+                                                            (intLiteral
+                                                              (unsizedIntLiteral
+                                                                (decNum
+                                                                  (decDigits))))))))))))
+                                            (comment)
+                                            (fsmStmt
+                                              (actionStmt
+                                                (expression
+                                                  (operatorExpr
+                                                    (expression
+                                                      (exprPrimary
+                                                        (identifier)))
+                                                    (binop)
+                                                    (expression
+                                                      (exprPrimary
+                                                        (bitSelect
+                                                          (exprPrimary
+                                                            (identifier))
+                                                          (expression
+                                                            (exprPrimary
+                                                              (identifier))))))))
+                                                (actionStmt
+                                                  (actionBlock
+                                                    (actionStmt
+                                                      (functionCall
+                                                        (exprPrimary
+                                                          (methodCall
+                                                            (exprPrimary
+                                                              (identifier))
+                                                            (identifier)))
+                                                        (expression
+                                                          (exprPrimary
+                                                            (functionCall
+                                                              (exprPrimary
+                                                                (identifier))
+                                                              (expression
+                                                                (exprPrimary
+                                                                  (identifier)))
+                                                              (expression
+                                                                (exprPrimary
+                                                                  (identifier)))
+                                                              (expression
+                                                                (exprPrimary
+                                                                  (identifier)))
+                                                              (expression
+                                                                (exprPrimary
+                                                                  (identifier))))))))
+                                                    (actionStmt
+                                                      (regWrite
+                                                        (lValue
+                                                          (identifier))
+                                                        (rValue
+                                                          (expression
+                                                            (operatorExpr
+                                                              (expression
+                                                                (exprPrimary
+                                                                  (identifier)))
+                                                              (binop)
+                                                              (expression
+                                                                (exprPrimary
+                                                                  (expression
+                                                                    (operatorExpr
+                                                                      (expression
+                                                                        (exprPrimary
+                                                                          (identifier)))
+                                                                      (binop)
+                                                                      (expression
+                                                                        (exprPrimary
+                                                                          (intLiteral
+                                                                            (unsizedIntLiteral
+                                                                              (decNum
+                                                                                (decDigits)))))))))))))))))))
+                                            (fsmStmt
+                                              (actionStmt
+                                                (actionBlock
+                                                  (comment)
+                                                  (actionStmt
+                                                    (regWrite
+                                                      (lValue
+                                                        (identifier))
+                                                      (rValue
+                                                        (expression
+                                                          (exprPrimary
+                                                            (identifier))))))
+                                                  (actionStmt
+                                                    (regWrite
+                                                      (lValue
+                                                        (identifier))
+                                                      (rValue
+                                                        (expression
+                                                          (exprPrimary
+                                                            (identifier))))))
+                                                  (actionStmt
+                                                    (regWrite
+                                                      (lValue
+                                                        (identifier))
+                                                      (rValue
+                                                        (expression
+                                                          (operatorExpr
+                                                            (expression
+                                                              (exprPrimary
+                                                                (identifier)))
+                                                            (binop)
+                                                            (expression
+                                                              (exprPrimary
+                                                                (intLiteral
+                                                                  (unsizedIntLiteral
+                                                                    (decNum
+                                                                      (decDigits)))))))))))))))))))
+                                  (comment)
                                   (fsmStmt
                                     (ifFsmStmt
                                       (expression
@@ -1486,104 +1420,190 @@ endpackage: Mergesort
                                               (binop)
                                               (expression
                                                 (exprPrimary
-                                                  (intLiteral
-                                                    (unsizedIntLiteral
-                                                      (decNum
-                                                        (decDigits))))))))))
-                                      (fsmStmt
-                                        (actionStmt
-                                          (systemTaskStmt
-                                            (displayTaskName)
-                                            (expression
-                                              (exprPrimary
-                                                (stringLiteral)))
-                                            (expression
-                                              (exprPrimary
-                                                (identifier))))))))))
-                              (comment)
-                              (fsmStmt
-                                (actionStmt
-                                  (actionBlock
-                                    (actionStmt
-                                      (functionCall
-                                        (exprPrimary
-                                          (identifier))
-                                        (expression
-                                          (operatorExpr
-                                            (unop)
-                                            (expression
-                                              (exprPrimary
-                                                (methodCall
-                                                  (exprPrimary
-                                                    (identifier))
-                                                  (identifier))))))))
-                                    (actionStmt
-                                      (type
-                                        (typePrimary
-                                          (typeIde
-                                            (identifier))))
-                                      (identifier)
-                                      (expression
-                                        (exprPrimary
-                                          (intLiteral
-                                            (unsizedIntLiteral
-                                              (decNum
-                                                (decDigits))))))
-                                      (expression
-                                        (operatorExpr
-                                          (expression
-                                            (exprPrimary
-                                              (identifier)))
-                                          (binop)
-                                          (expression
-                                            (exprPrimary
-                                              (type
-                                                (typePrimary
-                                                  (typeIde
-                                                    (identifier))))))))
-                                      (identifier)
-                                      (expression
-                                        (operatorExpr
-                                          (expression
-                                            (exprPrimary
-                                              (identifier)))
-                                          (binop)
-                                          (expression
-                                            (exprPrimary
-                                              (intLiteral
-                                                (unsizedIntLiteral
-                                                  (decNum
-                                                    (decDigits))))))))
-                                      (actionStmt
-                                        (functionCall
-                                          (exprPrimary
-                                            (identifier))
-                                          (expression
-                                            (exprPrimary
-                                              (methodCall
-                                                (exprPrimary
                                                   (bitSelect
                                                     (exprPrimary
                                                       (identifier))
                                                     (expression
                                                       (exprPrimary
-                                                        (identifier)))))
-                                                (identifier)))))))
-                                    (actionStmt
-                                      (regWrite
-                                        (lValue
-                                          (lValue
-                                            (identifier))
+                                                        (identifier))))))))))
+                                      (fsmStmt
+                                        (actionStmt
+                                          (actionBlock
+                                            (actionStmt
+                                              (condPredicate
+                                                (exprOrCondPattern
+                                                  (expression
+                                                    (operatorExpr
+                                                      (expression
+                                                        (exprPrimary
+                                                          (identifier)))
+                                                      (binop)
+                                                      (expression
+                                                        (exprPrimary
+                                                          (intLiteral
+                                                            (unsizedIntLiteral
+                                                              (decNum
+                                                                (decDigits))))))))))
+                                              (actionStmt
+                                                (systemTaskStmt
+                                                  (displayTaskName)
+                                                  (expression
+                                                    (exprPrimary
+                                                      (stringLiteral)))
+                                                  (expression
+                                                    (exprPrimary
+                                                      (identifier))))))
+                                            (actionStmt
+                                              (functionCall
+                                                (exprPrimary
+                                                  (methodCall
+                                                    (exprPrimary
+                                                      (identifier))
+                                                    (identifier)))
+                                                (expression
+                                                  (exprPrimary
+                                                    (functionCall
+                                                      (exprPrimary
+                                                        (identifier))
+                                                      (expression
+                                                        (exprPrimary
+                                                          (intLiteral
+                                                            (unsizedIntLiteral
+                                                              (decNum
+                                                                (decDigits))))))
+                                                      (expression
+                                                        (exprPrimary
+                                                          (bitSelect
+                                                            (exprPrimary
+                                                              (identifier))
+                                                            (expression
+                                                              (exprPrimary
+                                                                (identifier))))))
+                                                      (expression
+                                                        (exprPrimary
+                                                          (identifier)))
+                                                      (expression
+                                                        (exprPrimary
+                                                          (identifier)))))))))))
+                                      (fsmStmt
+                                        (ifFsmStmt
                                           (expression
                                             (exprPrimary
-                                              (identifier))))
-                                        (rValue
+                                              (expression
+                                                (operatorExpr
+                                                  (expression
+                                                    (exprPrimary
+                                                      (identifier)))
+                                                  (binop)
+                                                  (expression
+                                                    (exprPrimary
+                                                      (intLiteral
+                                                        (unsizedIntLiteral
+                                                          (decNum
+                                                            (decDigits))))))))))
+                                          (fsmStmt
+                                            (actionStmt
+                                              (systemTaskStmt
+                                                (displayTaskName)
+                                                (expression
+                                                  (exprPrimary
+                                                    (stringLiteral)))
+                                                (expression
+                                                  (exprPrimary
+                                                    (identifier))))))))))
+                                  (comment)
+                                  (fsmStmt
+                                    (actionStmt
+                                      (actionBlock
+                                        (actionStmt
+                                          (varDecl
+                                            (type
+                                              (typePrimary
+                                                (typeIde
+                                                  (identifier))))
+                                            (varInit
+                                              (lValue
+                                                (expression
+                                                  (operatorExpr
+                                                    (unop)
+                                                    (expression
+                                                      (exprPrimary
+                                                        (methodCall
+                                                          (exprPrimary
+                                                            (identifier))
+                                                          (identifier))))))))))
+                                        (actionStmt
+                                          (type
+                                            (typePrimary
+                                              (typeIde
+                                                (identifier))))
+                                          (identifier)
                                           (expression
                                             (exprPrimary
                                               (intLiteral
                                                 (unsizedIntLiteral
                                                   (decNum
-                                                    (decDigits))))))))))))))))))))))
+                                                    (decDigits))))))
+                                          (expression
+                                            (operatorExpr
+                                              (expression
+                                                (exprPrimary
+                                                  (identifier)))
+                                              (binop)
+                                              (expression
+                                                (exprPrimary
+                                                  (type
+                                                    (typePrimary
+                                                      (typeIde
+                                                        (identifier))))))))
+                                          (identifier)
+                                          (expression
+                                            (operatorExpr
+                                              (expression
+                                                (exprPrimary
+                                                  (identifier)))
+                                              (binop)
+                                              (expression
+                                                (exprPrimary
+                                                  (intLiteral
+                                                    (unsizedIntLiteral
+                                                      (decNum
+                                                        (decDigits))))))))
+                                          (actionStmt
+                                            (varDecl
+                                              (type
+                                                (typePrimary
+                                                  (typeIde
+                                                    (identifier))))
+                                              (varInit
+                                                (lValue
+                                                  (expression
+                                                    (exprPrimary
+                                                      (methodCall
+                                                        (exprPrimary
+                                                          (bitSelect
+                                                            (exprPrimary
+                                                              (identifier))
+                                                            (expression
+                                                              (exprPrimary
+                                                                (identifier)))))
+                                                        (identifier)))))))))
+                                        (actionStmt
+                                          (regWrite
+                                            (lValue
+                                              (lValue
+                                                (identifier))
+                                              (arrayIndexes
+                                                (expression
+                                                  (exprPrimary
+                                                    (identifier)))))
+                                            (rValue
+                                              (expression
+                                                (exprPrimary
+                                                  (intLiteral
+                                                    (unsizedIntLiteral
+                                                      (decNum
+                                                        (decDigits))))))))))))))))))))))))
           (comment)
           (moduleStmt
             (type
@@ -1727,26 +1747,27 @@ endpackage: Mergesort
           (moduleStmt
             (functionDef
               (functionProto
-                (type
-                  (typePrimary
-                    (typeIde
-                      (identifier))
-                    (type
-                      (typePrimary
-                        (typeIde
-                          (identifier))))
-                    (type
-                      (typePrimary
-                        (typeIde
-                          (identifier))))))
-                (identifier)
-                (functionFormals
-                  (functionFormal
-                    (type
-                      (typePrimary
-                        (typeIde
-                          (identifier))))
-                    (identifier))))
+                (functionType
+                  (type
+                    (typePrimary
+                      (typeIde
+                        (identifier))
+                      (type
+                        (typePrimary
+                          (typeIde
+                            (identifier))))
+                      (type
+                        (typePrimary
+                          (typeIde
+                            (identifier))))))
+                  (identifier)
+                  (functionFormals
+                    (functionFormal
+                      (type
+                        (typePrimary
+                          (typeIde
+                            (identifier))))
+                      (identifier)))))
               (functionBody
                 (functionBodyStmt
                   (returnStmt
@@ -1784,9 +1805,10 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (identifier))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (identifier)))))
                   (rValue
                     (expression
                       (exprPrimary
@@ -2023,7 +2045,7 @@ endpackage: Mergesort
                         (decNum
                           (decDigits)))))))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2036,13 +2058,12 @@ endpackage: Mergesort
                         (typePrimary
                           (typeNat
                             (decDigits))))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2051,13 +2072,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2066,13 +2086,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2081,13 +2100,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2096,13 +2114,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2111,13 +2128,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2126,13 +2142,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2141,13 +2156,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2156,13 +2170,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2171,13 +2184,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2186,13 +2198,12 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2201,14 +2212,13 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2217,18 +2227,16 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (boolLiteral)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (boolLiteral)))))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2237,14 +2245,13 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2253,11 +2260,10 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (identifier))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier))))
           (comment)
           (moduleStmt
             (moduleInst
@@ -2276,12 +2282,13 @@ endpackage: Mergesort
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (intLiteral
-                      (unsizedIntLiteral
-                        (decNum
-                          (decDigits)))))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (intLiteral
+                        (unsizedIntLiteral
+                          (decNum
+                            (decDigits))))))))
               (moduleApp
                 (identifier)
                 (moduleActualParamArg
@@ -2308,12 +2315,13 @@ endpackage: Mergesort
               (lValue
                 (lValue
                   (identifier))
-                (expression
-                  (exprPrimary
-                    (intLiteral
-                      (unsizedIntLiteral
-                        (decNum
-                          (decDigits)))))))
+                (arrayIndexes
+                  (expression
+                    (exprPrimary
+                      (intLiteral
+                        (unsizedIntLiteral
+                          (decNum
+                            (decDigits))))))))
               (moduleApp
                 (identifier)
                 (moduleActualParamArg
@@ -2324,7 +2332,7 @@ endpackage: Mergesort
                           (decNum
                             (decDigits))))))))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2333,18 +2341,16 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (identifier)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (identifier)))))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -2353,16 +2359,14 @@ endpackage: Mergesort
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (identifier)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (identifier)))))))
           (moduleStmt
             (varDecl
               (type
@@ -2518,12 +2522,13 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (intLiteral
-                          (unsizedIntLiteral
-                            (decNum
-                              (decDigits)))))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))
                   (rValue
                     (expression
                       (operatorExpr
@@ -2637,12 +2642,13 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (intLiteral
-                          (unsizedIntLiteral
-                            (decNum
-                              (decDigits)))))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))
                   (rValue
                     (expression
                       (operatorExpr
@@ -2859,12 +2865,13 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (intLiteral
-                          (unsizedIntLiteral
-                            (decNum
-                              (decDigits)))))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))
                   (rValue
                     (expression
                       (operatorExpr
@@ -2978,12 +2985,13 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (intLiteral
-                          (unsizedIntLiteral
-                            (decNum
-                              (decDigits)))))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))
                   (rValue
                     (expression
                       (operatorExpr
@@ -3686,12 +3694,13 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (intLiteral
-                          (unsizedIntLiteral
-                            (decNum
-                              (decDigits)))))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))
                   (rValue
                     (expression
                       (exprPrimary
@@ -3706,12 +3715,13 @@ endpackage: Mergesort
                   (lValue
                     (lValue
                       (identifier))
-                    (expression
-                      (exprPrimary
-                        (intLiteral
-                          (unsizedIntLiteral
-                            (decNum
-                              (decDigits)))))))
+                    (arrayIndexes
+                      (expression
+                        (exprPrimary
+                          (intLiteral
+                            (unsizedIntLiteral
+                              (decNum
+                                (decDigits))))))))
                   (rValue
                     (expression
                       (exprPrimary

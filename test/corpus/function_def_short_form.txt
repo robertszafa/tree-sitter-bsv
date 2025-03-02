@@ -10,11 +10,12 @@ function Bool f() = False;
       (packageStmt
         (functionDef
           (functionProto
-            (type
-              (typePrimary
-                (typeIde
-                  (identifier))))
-            (identifier))
+            (functionType
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))))
+              (identifier)))
           (rValue
             (expression
               (exprPrimary

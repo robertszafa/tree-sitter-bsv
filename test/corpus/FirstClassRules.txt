@@ -1,0 +1,36 @@
+====================
+first class rules expr
+====================
+
+Rules rs;
+rs = rules
+       rule foo; endrule
+       rule bar; endrule
+     endrules;
+
+---
+
+
+(sourceFile
+ (packageStmt
+  (varDecl
+   (type
+    (typePrimary
+     (typeIde
+      (identifier))))
+   (varInit
+    (lValue
+     (identifier)))))
+ (packageStmt
+  (lValue
+   (identifier))
+  (rValue
+   (expression
+    (exprPrimary
+     (rulesExpr
+      (rulesStmt
+       (rule
+        (identifier)))
+      (rulesStmt
+       (rule
+        (identifier)))))))))

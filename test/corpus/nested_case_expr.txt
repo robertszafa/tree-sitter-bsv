@@ -80,18 +80,19 @@ endfunction: foo
       (packageStmt
         (functionDef
           (functionProto
-            (type
-              (typePrimary
-                (typeIde
-                  (identifier))))
-            (identifier)
-            (functionFormals
-              (functionFormal
-                (type
-                  (typePrimary
-                    (typeIde
-                      (identifier))))
-                (identifier))))
+            (functionType
+              (type
+                (typePrimary
+                  (typeIde
+                    (identifier))))
+              (identifier)
+              (functionFormals
+                (functionFormal
+                  (type
+                    (typePrimary
+                      (typeIde
+                        (identifier))))
+                  (identifier)))))
           (functionBody
             (functionBodyStmt
               (varDecl

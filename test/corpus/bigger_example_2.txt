@@ -1008,7 +1008,7 @@ endpackage
                         (identifier))))))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1033,19 +1033,18 @@ endpackage
                         (typePrimary
                           (typeIde
                             (identifier))))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (boolLiteral)))
-                      (expression
-                        (exprPrimary
-                          (boolLiteral)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (boolLiteral))))
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (boolLiteral)))))))
           (comment)
           (comment)
           (moduleStmt
@@ -1373,7 +1372,7 @@ endpackage
                         (identifier))))))))
           (comment)
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -1398,19 +1397,18 @@ endpackage
                         (typePrimary
                           (typeIde
                             (identifier))))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (boolLiteral)))
-                      (expression
-                        (exprPrimary
-                          (boolLiteral)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (boolLiteral))))
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (boolLiteral)))))))
           (comment)
           (comment)
           (moduleStmt

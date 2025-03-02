@@ -23,7 +23,6 @@ endmodule
 
 ---
 
-
     (sourceFile
       (packageStmt
         (typeDef
@@ -51,7 +50,7 @@ endmodule
                   (typeIde
                     (identifier))))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -60,21 +59,19 @@ endmodule
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (intLiteral
-                            (unsizedIntLiteral
-                              (decNum
-                                (decDigits))))))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (intLiteral
+                        (unsizedIntLiteral
+                          (decNum
+                            (decDigits))))))))))
           (moduleStmt
-            (varDeclDo
+            (moduleInst
               (type
                 (typePrimary
                   (typeIde
@@ -83,16 +80,14 @@ endmodule
                     (typePrimary
                       (typeIde
                         (identifier))))))
-              (identifier)
-              (rValue
-                (expression
-                  (exprPrimary
-                    (functionCall
-                      (exprPrimary
-                        (identifier))
-                      (expression
-                        (exprPrimary
-                          (identifier)))))))))
+              (lValue
+                (identifier))
+              (moduleApp
+                (identifier)
+                (moduleActualParamArg
+                  (expression
+                    (exprPrimary
+                      (identifier)))))))
           (comment)
           (comment)
           (comment)
