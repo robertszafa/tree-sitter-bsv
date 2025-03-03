@@ -93,16 +93,17 @@ function ctxtFor($, ctxtStmt) {
       $.type, $.identifier, '=', $.expression,
       repeat(seq(',', simpleVarDeclAssign()))
     ));
-    let forInit = () => choice(forOldInit(), forNewInit());
+    let forInit = () => field('forInit', choice(forOldInit(), forNewInit()));
 
-    let varIncr = () => prec.left(seq(
-      $.identifier, '=', $.expression
+    let varIncr = () => field('varIncr', choice(
+      prec.left(seq($.identifier, '=', $.expression)),
+      prec.left(seq($.type, $.identifier)),
     ));
-    let forIncr = () => prec.left(seq(
+    let forIncr = () => field('forIncr', prec.left(seq(
       varIncr(), repeatseq(',', varIncr())
-    ));
+    )));
 
-    let forTest = () => $.expression;
+    let forTest = () => field('forTest', $.expression);
 
   return field("forStmt", prec.left(seq(
     'for', '(', forInit(), ';', forTest(), ';', forIncr(), ')',
